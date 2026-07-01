@@ -44,5 +44,13 @@
       try { localStorage.setItem('iqhub_theme', next); } catch (e) {}
       updateIcon(next);
     });
+    
+    // Cross-tab sync
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'iqhub_theme' && (e.newValue === 'dark' || e.newValue === 'light')) {
+        document.documentElement.setAttribute('data-theme', e.newValue);
+        updateIcon(e.newValue);
+      }
+    });
   });
 }());

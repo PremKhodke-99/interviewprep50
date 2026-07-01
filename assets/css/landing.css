@@ -565,6 +565,7 @@ h1 {
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 22px;
+  list-style-type: none;
 }
 
 .topic-tag {
