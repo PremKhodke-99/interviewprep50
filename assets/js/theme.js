@@ -53,4 +53,18 @@
       }
     });
   });
+
+  // 3. Dynamically inject favicon if missing
+  if (!document.querySelector("link[rel~='icon']")) {
+    var favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.type = 'image/x-icon';
+    var scriptTag = document.currentScript || document.querySelector('script[src*="theme.js"]');
+    if (scriptTag) {
+      var src = scriptTag.getAttribute('src');
+      var rootPath = src.split('assets/js/theme.js')[0];
+      favicon.href = rootPath + 'favicon.ico';
+      document.head.appendChild(favicon);
+    }
+  }
 }());
