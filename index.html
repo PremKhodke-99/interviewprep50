@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Security headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+
+  <!-- SEO -->
+  <title>Interview Prep Hub — 150 Full Stack Questions</title>
+  <meta name="description"
+    content="Master your full-stack developer interview with 150 curated questions across Basic, Intermediate, and Backend levels. Track your progress and land your dream job.">
+
+  <!-- Fonts (preconnect for performance) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/landing.css">
+
+  <!-- Theme: runs before body paint to prevent FOUC -->
+  <script src="assets/js/theme.js"></script>
+</head>
+
+<body>
+  <!-- Skip navigation for keyboard / screen reader users -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Background orbs (decorative, hidden from AT) -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="container">
+    <!-- Theme toggle -->
+    <div class="theme-toggle-wrap">
+      <button id="theme-toggle" class="theme-btn" aria-label="Switch to light mode" type="button">
+        <!-- Icon injected by JS -->
+      </button>
+    </div>
+
+    <main id="main-content">
+
+      <!-- ── HERO ── -->
+      <section class="hero" aria-labelledby="hero-heading">
+        <div class="hero-eyebrow" aria-hidden="true">
+          <span class="dot"></span>
+          Interview Prep Kit · 2026
+        </div>
+
+        <h1 id="hero-heading">
+          <span class="h1-line1">Ace Every</span>
+          <span class="h1-line2">Dev Interview</span>
+        </h1>
+
+        <p class="hero-sub">
+          150 hand-crafted questions across three levels — from fundamentals to backend architecture.
+          Each answer includes code examples, explanations and interviewer tips.
+        </p>
+
+        <div class="stats-row" role="list" aria-label="Quick stats">
+          <div class="stat-chip" role="listitem"><span class="num" aria-label="150">150</span> Total Questions</div>
+          <div class="stat-chip" role="listitem"><span class="num" aria-label="3">3</span> Difficulty Levels</div>
+          <div class="stat-chip" role="listitem"><span class="num" aria-label="15 plus">15+</span> Tech Topics</div>
+          <div class="stat-chip" role="listitem"><span class="num" aria-label="unlimited">∞</span> Progress Tracking
+          </div>
+        </div>
+      </section>
+
+      <!-- ── QUESTION SET CARDS ── -->
+      <section aria-labelledby="sets-heading">
+        <h2 id="sets-heading" class="sr-only">Question Sets</h2>
+
+        <div class="cards-grid reveal" id="cardsGrid">
+
+          <!-- Basic 50 -->
+          <a href="basic-50/index.html" class="card card-basic" id="card-basic"
+            aria-label="Basic 50 — Beginner level, 50 questions on React, JavaScript, CSS, Node.js and Git">
+            <div class="card-band" aria-hidden="true"></div>
+            <div class="card-inner-glow" aria-hidden="true"></div>
+            <div class="card-body">
+              <div class="card-badge" aria-hidden="true">⬡ Level 01 · Beginner</div>
+              <span class="card-level-icon" role="img" aria-label="Seedling">🌱</span>
+              <div class="diff-dots" aria-label="Difficulty: 1 out of 3">
+                <div class="diff-dot filled" aria-hidden="true"></div>
+                <div class="diff-dot empty" aria-hidden="true"></div>
+                <div class="diff-dot empty" aria-hidden="true"></div>
+              </div>
+              <h3 class="card-title">Basic 50</h3>
+              <p class="card-subtitle">Start here. Covers essentials every full-stack developer needs — React,
+                JavaScript, CSS, Node.js and Git fundamentals.</p>
+              <ul class="card-topics" aria-label="Topics covered">
+                <li class="topic-tag">React</li>
+                <li class="topic-tag">JavaScript</li>
+                <li class="topic-tag">CSS / Tailwind</li>
+                <li class="topic-tag">Node.js</li>
+                <li class="topic-tag">Linux</li>
+                <li class="topic-tag">MySQL</li>
+                <li class="topic-tag">Git</li>
+              </ul>
+              <div class="card-meta">
+                <div class="card-count">
+                  <span class="num" aria-label="50">50</span>
+                  <span class="label">Questions</span>
+                </div>
+                <span class="card-cta" aria-hidden="true">Start <span class="cta-arrow">→</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Intermediate 50 -->
+          <a href="intermediate-50/index.html" class="card card-inter" id="card-intermediate"
+            aria-label="Intermediate 50 — Intermediate level, 50 questions on React internals, TypeScript and performance">
+            <div class="card-band" aria-hidden="true"></div>
+            <div class="card-inner-glow" aria-hidden="true"></div>
+            <div class="card-body">
+              <div class="card-badge" aria-hidden="true">⬡ Level 02 · Intermediate</div>
+              <span class="card-level-icon" role="img" aria-label="Lightning bolt">⚡</span>
+              <div class="diff-dots" aria-label="Difficulty: 2 out of 3">
+                <div class="diff-dot filled" aria-hidden="true"></div>
+                <div class="diff-dot filled" aria-hidden="true"></div>
+                <div class="diff-dot empty" aria-hidden="true"></div>
+              </div>
+              <h3 class="card-title">Intermediate 50</h3>
+              <p class="card-subtitle">Level up. Deep dives into React internals, TypeScript, performance optimization
+                and advanced Node.js patterns.</p>
+              <ul class="card-topics" aria-label="Topics covered">
+                <li class="topic-tag">React Internals</li>
+                <li class="topic-tag">TypeScript</li>
+                <li class="topic-tag">Next.js RSC</li>
+                <li class="topic-tag">Performance</li>
+                <li class="topic-tag">Closures</li>
+                <li class="topic-tag">SCSS</li>
+                <li class="topic-tag">CSS Grid</li>
+              </ul>
+              <div class="card-meta">
+                <div class="card-count">
+                  <span class="num" aria-label="50">50</span>
+                  <span class="label">Questions</span>
+                </div>
+                <span class="card-cta" aria-hidden="true">Start <span class="cta-arrow">→</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Backend 50 -->
+          <a href="backend-50/index.html" class="card card-backend" id="card-backend"
+            aria-label="Backend 50 — Advanced level, 50 questions on Node.js, databases, Docker and system design">
+            <div class="card-band" aria-hidden="true"></div>
+            <div class="card-inner-glow" aria-hidden="true"></div>
+            <div class="card-body">
+              <div class="card-badge" aria-hidden="true">⬡ Level 03 · Backend</div>
+              <span class="card-level-icon" role="img" aria-label="Wrench">🔧</span>
+              <div class="diff-dots" aria-label="Difficulty: 3 out of 3">
+                <div class="diff-dot filled" aria-hidden="true"></div>
+                <div class="diff-dot filled" aria-hidden="true"></div>
+                <div class="diff-dot filled" aria-hidden="true"></div>
+              </div>
+              <h3 class="card-title">Backend 50</h3>
+              <p class="card-subtitle">Go deep on servers. Node.js, databases, REST APIs, Docker, NestJS, webhooks and
+                system design.</p>
+              <ul class="card-topics" aria-label="Topics covered">
+                <li class="topic-tag">Node.js</li>
+                <li class="topic-tag">REST API</li>
+                <li class="topic-tag">PostgreSQL</li>
+                <li class="topic-tag">MongoDB</li>
+                <li class="topic-tag">Docker</li>
+                <li class="topic-tag">NestJS</li>
+                <li class="topic-tag">Webhooks</li>
+              </ul>
+              <div class="card-meta">
+                <div class="card-count">
+                  <span class="num" aria-label="50">50</span>
+                  <span class="label">Questions</span>
+                </div>
+                <span class="card-cta" aria-hidden="true">Start <span class="cta-arrow">→</span></span>
+              </div>
+            </div>
+          </a>
+
+        </div><!-- /.cards-grid -->
+      </section>
+
+      <!-- ── HOW IT WORKS ── -->
+      <section aria-labelledby="how-heading" class="reveal">
+        <p class="section-label" aria-hidden="true">How it works</p>
+        <h2 id="how-heading" class="section-title">Built for real interview prep</h2>
+
+        <ul class="steps-grid" aria-label="Steps to use this kit">
+          <li class="step">
+            <div class="step-num" aria-hidden="true">01</div>
+            <span class="step-icon" role="img" aria-label="Target">🎯</span>
+            <h3 class="step-title">Pick your level</h3>
+            <p class="step-desc">Start with Basic if you're new. Jump to Intermediate or Backend if you're prepping for
+              a specific role.</p>
+          </li>
+          <li class="step">
+            <div class="step-num" aria-hidden="true">02</div>
+            <span class="step-icon" role="img" aria-label="Open book">📖</span>
+            <h3 class="step-title">Read the answer</h3>
+            <p class="step-desc">Every question has a detailed answer, a code example, a plain-English explanation, and
+              an interviewer tip.</p>
+          </li>
+          <li class="step">
+            <div class="step-num" aria-hidden="true">03</div>
+            <span class="step-icon" role="img" aria-label="Checkmark">✅</span>
+            <h3 class="step-title">Mark as done</h3>
+            <p class="step-desc">Click the circle to mark questions complete. Your progress is saved in the browser so
+              you never lose it.</p>
+          </li>
+          <li class="step">
+            <div class="step-num" aria-hidden="true">04</div>
+            <span class="step-icon" role="img" aria-label="Magnifying glass">🔍</span>
+            <h3 class="step-title">Filter &amp; search</h3>
+            <p class="step-desc">Filter by difficulty or topic, or use the search bar to quickly find questions on any
+              technology.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- ── TOPICS CLOUD ── -->
+      <section aria-labelledby="topics-heading" class="topics-section reveal">
+        <div class="topics-header">
+          <h2 id="topics-heading" class="topics-title">All Topics Covered</h2>
+          <p class="topics-sub">Across all three question sets</p>
+        </div>
+        <ul class="topics-cloud" aria-label="Technology topics">
+          <!-- Basic (green) -->
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>React</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>Next.js</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>JavaScript</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>CSS Flexbox</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>TailwindCSS</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>Node.js</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>Express.js</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>Linux</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>Git</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>MySQL</li>
+          <li class="topic-pill"><span class="pill-dot pill-green" aria-hidden="true"></span>MongoDB</li>
+          <!-- Intermediate (purple) -->
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>TypeScript</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>React Internals</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>RSC / App Router</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>Redux Toolkit</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>Zustand</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>CSS Grid</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>SCSS</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>Performance</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>Event Loop</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>Closures</li>
+          <li class="topic-pill"><span class="pill-dot pill-purple" aria-hidden="true"></span>Lighthouse</li>
+          <!-- Backend (teal) -->
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>REST API</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>NestJS</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>PHP</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>Java / Spring</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>PostgreSQL</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>Docker</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>Nginx</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>Webhooks</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>JWT / OAuth</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>Redis / TTL</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>Webpack</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>ACID / Transactions</li>
+          <li class="topic-pill"><span class="pill-dot pill-teal" aria-hidden="true"></span>CRUD</li>
+        </ul>
+      </section>
+
+    </main><!-- /#main-content -->
+  </div><!-- /.container -->
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p class="footer-inner">
+        <span>Interview Prep Hub</span>
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <span class="footer-accent">150 Questions</span>
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <span>Progress saved in browser</span>
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <span>2026 Edition</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Floating hint (mobile, aria-hidden so screen readers don't duplicate) -->
+  <div class="floating-bar" aria-hidden="true">
+    <span class="fb-dot"></span>
+    150 questions · 3 levels · start anywhere
+  </div>
+
+  <!-- Screen-reader only utility class -->
+  <style>
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0
+    }
+  </style>
+
+  <!-- App JS (deferred — does not block render) -->
+  <script src="assets/js/landing.js" defer></script>
+</body>
+
+</html>

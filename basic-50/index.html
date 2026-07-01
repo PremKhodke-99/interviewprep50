@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Security headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+
+  <!-- SEO -->
+  <title>50 Basic Full Stack Interview Questions — React, JS, CSS, Node &amp; More</title>
+  <meta name="description"
+    content="50 beginner-level full-stack developer interview questions covering React, JavaScript, CSS, TailwindCSS, Node.js, Linux, MySQL, MongoDB, Git and more.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Theme: runs before body to prevent FOUC -->
+  <script src="../assets/js/theme.js"></script>
+</head>
+
+<body>
+
+  <!-- Skip navigation link (keyboard / AT users) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ARIA live region for dynamic announcements -->
+  <div id="a11y-live" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="wrap">
+
+    <header>
+      <!-- Top utility row: back link + theme toggle -->
+      <div class="hdr-top-row">
+        <a href="../index.html" class="back-link" aria-label="Back to Interview Prep Hub">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            aria-hidden="true">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Hub
+        </a>
+        <button id="theme-toggle" class="theme-btn" aria-label="Switch to dark mode" type="button">
+          <!-- Icon injected by app.js -->
+        </button>
+      </div>
+
+      <div class="hdr-row">
+        <div>
+          <div class="badge" aria-label="Beginner Edition 2026">Beginner Edition · 2026</div>
+          <h1>50 <em>Basic</em> Questions<br>Full Stack Dev</h1>
+          <p class="sub">React · JS · CSS · Node · Linux · MySQL · MongoDB · Webpack · Webhooks · Git</p>
+        </div>
+
+        <!-- Stats (aria-live so updates are announced) -->
+        <div class="stats" id="stats-region" role="group" aria-label="Progress stats" aria-live="polite">
+          <div class="sp">
+            <span class="sn" id="tQ" style="color:var(--accent)">50</span>
+            <span class="sl">Total</span>
+          </div>
+          <div class="sp">
+            <span class="sn" id="dQ" style="color:var(--accent)">0</span>
+            <span class="sl">Done</span>
+          </div>
+          <div class="sp">
+            <span class="sn" id="lQ" style="color:var(--amber)">50</span>
+            <span class="sl">Left</span>
+          </div>
+          <div class="sp">
+            <span class="sn" id="pQ" style="color:var(--muted)">0%</span>
+            <span class="sl">Done %</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="pw" role="region" aria-label="Overall progress">
+        <div class="pm">
+          <span>Overall Progress</span>
+          <span id="ptxt" aria-live="polite">0 / 50 completed</span>
+        </div>
+        <div class="ptrack" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+          aria-label="Completion progress">
+          <div class="pfill" id="pfill"></div>
+        </div>
+        <div class="cpwrap" id="cpwrap" aria-label="Progress by category"></div>
+      </div>
+    </header>
+
+    <main id="main-content">
+
+      <!-- Filters -->
+      <nav aria-label="Filter questions">
+        <div class="fb" role="group" aria-label="Filter controls">
+          <span class="fl" id="diff-label">Diff:</span>
+          <button class="btn" data-d="all" aria-pressed="true" aria-describedby="diff-label">All</button>
+          <button class="btn" data-d="Easy" aria-pressed="false" aria-describedby="diff-label">Easy</button>
+          <button class="btn" data-d="Medium" aria-pressed="false" aria-describedby="diff-label">Medium</button>
+          <div class="fs" role="separator" aria-hidden="true"></div>
+          <span class="fl" id="topic-label">Topic:</span>
+          <div class="fbwrap" id="catbtns" role="group" aria-labelledby="topic-label"></div>
+        </div>
+      </nav>
+
+      <!-- Search -->
+      <div class="sw">
+        <svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <label for="srch" class="sr-only">Search questions</label>
+        <input type="search" id="srch" name="search" placeholder="Search questions…" maxlength="120" autocomplete="off"
+          spellcheck="false" aria-label="Search questions by topic, category or keyword">
+      </div>
+
+      <!-- Question list -->
+      <section aria-label="Interview questions" aria-live="polite" aria-relevant="additions removals">
+        <div class="ql" id="ql" role="list"></div>
+      </section>
+
+    </main>
+
+    <footer>
+      Start here before the advanced set —
+      <span>Mark questions done</span> as you go —
+      Progress saved in browser
+    </footer>
+
+  </div><!-- /.wrap -->
+
+  <!-- App JS (deferred) -->
+  <script src="js/app.js" defer></script>
+</body>
+
+</html>
