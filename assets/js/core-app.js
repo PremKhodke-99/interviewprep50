@@ -217,9 +217,9 @@ function render() {
 
   // Attach events AFTER insertion (not via inline handlers)
   fil.forEach(function(q) {
-    var togBtn = document.getElementById('tb' + q.id);
+    var qh = document.getElementById('c' + q.id).querySelector('.qh');
     var doneBtn = document.getElementById('db' + q.id);
-    if (togBtn) togBtn.addEventListener('click', function() { tog(q.id); });
+    if (qh) qh.addEventListener('click', function() { tog(q.id); });
     if (doneBtn) doneBtn.addEventListener('click', function(e) { e.stopPropagation(); mkDone(q.id); });
   });
 

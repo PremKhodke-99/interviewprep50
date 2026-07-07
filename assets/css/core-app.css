@@ -253,6 +253,7 @@ h1 em { font-style: normal; color: var(--accent); border-bottom: 2px solid var(-
   align-items: flex-start;
   gap: 10px;
   padding: clamp(12px,2vw,14px) clamp(12px,2.5vw,16px);
+  cursor: pointer;
 }
 .qn { font-family: 'DM Mono', monospace; font-size: 9.5px; color: var(--muted); min-width: 22px; padding-top: 3px; }
 .qm { flex: 1; min-width: 0; }
