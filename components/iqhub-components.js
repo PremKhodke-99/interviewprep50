@@ -96,9 +96,14 @@ class IqhubFooter extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <footer>
-        Start here before the advanced set —
-        <span>Mark questions done</span> as you go —
-        Progress saved in browser
+        <div style="margin-bottom: 4px;">
+          Start here before the advanced set —
+          <span>Mark questions done</span> as you go —
+          Progress saved in browser
+        </div>
+        <div style="opacity: 0.8;">
+          <span id="dynamic-q-count">Loading questions...</span> — Made by Prem Khodke
+        </div>
       </footer>
     `;
   }

@@ -1,0 +1,25 @@
+/* 
+ * company-questions/css/theme.css 
+ * Overrides the basic-50 green theme with a premium yellow/amber theme.
+ */
+
+:root,
+[data-theme="light"] {
+  --accent: #ca8a04; /* Amber-600 */
+  --accent-dim: rgba(202, 138, 4, 0.08);
+  --progress-fill: linear-gradient(90deg, #ca8a04, #f59e0b);
+}
+
+[data-theme="dark"] {
+  --accent: #fde047; /* Yellow-300 */
+  --accent-dim: rgba(253, 224, 71, 0.08);
+  --progress-fill: linear-gradient(90deg, #fde047, #fef08a);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent: #fde047;
+    --accent-dim: rgba(253, 224, 71, 0.08);
+    --progress-fill: linear-gradient(90deg, #fde047, #fef08a);
+  }
+}

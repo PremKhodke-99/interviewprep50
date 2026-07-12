@@ -405,6 +405,11 @@ h1 {
   --card-dim: var(--teal-dim);
 }
 
+.card-company {
+  --card-accent: var(--gold);
+  --card-dim: rgba(251, 191, 36, 0.12);
+}
+
 .card-basic:hover {
   border-color: rgba(61, 255, 160, .4);
   box-shadow: 0 0 60px rgba(61, 255, 160, .08), 0 20px 60px rgba(0, 0, 0, .25);
@@ -420,6 +425,11 @@ h1 {
   box-shadow: 0 0 60px rgba(34, 211, 238, .08), 0 20px 60px rgba(0, 0, 0, .25);
 }
 
+.card-company:hover {
+  border-color: rgba(251, 191, 36, .4);
+  box-shadow: 0 0 60px rgba(251, 191, 36, .08), 0 20px 60px rgba(0, 0, 0, .25);
+}
+
 [data-theme="light"] .card-basic:hover {
   box-shadow: 0 0 40px rgba(22, 160, 90, .12), 0 16px 40px rgba(0, 0, 0, .08);
 }
@@ -430,6 +440,10 @@ h1 {
 
 [data-theme="light"] .card-backend:hover {
   box-shadow: 0 0 40px rgba(8, 145, 178, .10), 0 16px 40px rgba(0, 0, 0, .08);
+}
+
+[data-theme="light"] .card-company:hover {
+  box-shadow: 0 0 40px rgba(217, 119, 6, .10), 0 16px 40px rgba(0, 0, 0, .08);
 }
 
 .card-band {
@@ -450,6 +464,10 @@ h1 {
 
 .card-backend .card-band {
   background: linear-gradient(90deg, var(--teal), #0ea5e9);
+}
+
+.card-company .card-band {
+  background: linear-gradient(90deg, var(--gold), #fbbf24);
 }
 
 .card-inner-glow {
@@ -479,6 +497,10 @@ h1 {
   background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(34, 211, 238, .07) 0%, transparent 80%);
 }
 
+.card-company .card-inner-glow {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(251, 191, 36, .07) 0%, transparent 80%);
+}
+
 [data-theme="light"] .card-basic .card-inner-glow {
   background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(22, 160, 90, .05) 0%, transparent 80%);
 }
@@ -489,6 +511,10 @@ h1 {
 
 [data-theme="light"] .card-backend .card-inner-glow {
   background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(8, 145, 178, .05) 0%, transparent 80%);
+}
+
+[data-theme="light"] .card-company .card-inner-glow {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(217, 119, 6, .05) 0%, transparent 80%);
 }
 
 .card-body {

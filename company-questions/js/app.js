@@ -1,4 +1,4 @@
-window.initIqhubApp = function(Q, SK) {
+window.initCompanyApp = function(Q, SK) {
 /* ── Validated localStorage load ── */
 function loadDone(key) {
   try {
@@ -7,31 +7,43 @@ function loadDone(key) {
     var parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return new Set();
     return new Set(parsed.filter(function(n) {
-      return Number.isInteger(n) && n > 0 && n <= 200;
+      return Number.isInteger(n) && n > 0 && n <= 1000;
     }));
   } catch(e) { return new Set(); }
 }
 
 var done = loadDone(SK);
 var fDiff = 'all';
-var fCat  = 'all';
+var fCompany = 'all';
 
-var cats = [...new Set(Q.map(function(q) { return q.cat; }))];
+// Identify repeated questions to mark as important
+var questionCounts = {};
+Q.forEach(function(q) {
+  var qText = (q.q || '').toLowerCase().trim();
+  questionCounts[qText] = (questionCounts[qText] || 0) + 1;
+});
 
-/* ── Category filter buttons ── */
-function buildCatButtons() {
-  var catbtns = document.getElementById('catbtns');
+Q.forEach(function(q) {
+  var qText = (q.q || '').toLowerCase().trim();
+  q.isImportant = questionCounts[qText] > 1;
+});
+
+var companies = [...new Set(Q.map(function(q) { return q.company; }).filter(Boolean))];
+
+/* ── Company filter buttons ── */
+function buildCompanyButtons() {
+  var catbtns = document.getElementById('catbtns'); // Using same ID as category buttons for CSS reuse
   if (!catbtns) return;
   catbtns.innerHTML = '';
 
   var allBtn = document.createElement('button');
   allBtn.className = 'btn';
   allBtn.setAttribute('aria-pressed', 'true');
-  allBtn.textContent = 'All';
+  allBtn.textContent = 'All Companies';
   allBtn.addEventListener('click', function() { setC('all', allBtn); });
   catbtns.appendChild(allBtn);
 
-  cats.forEach(function(c) {
+  companies.forEach(function(c) {
     var b = document.createElement('button');
     b.className = 'btn';
     b.setAttribute('aria-pressed', 'false');
@@ -42,7 +54,7 @@ function buildCatButtons() {
 }
 
 function setC(c, btn) {
-  fCat = c;
+  fCompany = c;
   var catbtns = document.getElementById('catbtns');
   if (catbtns) {
     catbtns.querySelectorAll('.btn').forEach(function(b) {
@@ -58,13 +70,14 @@ function initDiffButtons() {
     b.addEventListener('click', function() {
       document.querySelectorAll('[data-d]').forEach(function(x) {
         x.setAttribute('aria-pressed', 'false');
-        x.classList.remove('e', 'm');
+        x.classList.remove('e', 'm', 'h');
       });
       b.setAttribute('aria-pressed', 'true');
       var v = b.dataset.d;
       fDiff = v;
       if (v === 'Easy') b.classList.add('e');
       else if (v === 'Medium') b.classList.add('m');
+      else if (v === 'Hard') b.classList.add('h');
       render();
     });
   });
@@ -81,7 +94,6 @@ function tog(id) {
   togBtn.setAttribute('aria-expanded', String(!isOpen));
   card.classList.toggle('open', !isOpen);
   if (!isOpen) {
-    // announce for screen readers
     announce('Answer expanded');
   }
 }
@@ -117,7 +129,6 @@ function announce(msg) {
   setTimeout(function() { live.textContent = msg; }, 50);
 }
 
-/* ── Escape HTML (for any future user-dynamic content) ── */
 function escapeHTML(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -127,9 +138,8 @@ function escapeHTML(str) {
     .replace(/'/g, '&#39;');
 }
 
-/* ── Render question list ── */
+/* ── Render question list grouped by company ── */
 function render() {
-  // Search is filtered, never written to DOM
   var srchEl = document.getElementById('srch');
   var s = srchEl ? srchEl.value.toLowerCase().trim().slice(0, 120) : '';
 
@@ -137,96 +147,113 @@ function render() {
   if (!list) return;
   list.innerHTML = '';
 
-  var fil = Q.filter(function(q) {
-    var d  = fDiff === 'all' || q.diff === fDiff;
-    var c  = fCat  === 'all' || q.cat  === fCat;
-    var sr = !s ||
-      q.q.toLowerCase().includes(s) ||
-      q.cat.toLowerCase().includes(s) ||
-      q.tech.some(function(t) { return t.toLowerCase().includes(s); });
-    return d && c && sr;
+  var hasQuestions = false;
+
+  var compsToRender = fCompany === 'all' ? companies : [fCompany];
+
+  compsToRender.forEach(function(comp) {
+    var compQs = Q.filter(function(q) {
+      if (q.company !== comp) return false;
+      var d = fDiff === 'all' || q.diff === fDiff;
+      var sr = !s ||
+        (q.q || '').toLowerCase().includes(s) ||
+        (q.tech || []).some(function(t) { return t.toLowerCase().includes(s); });
+      return d && sr;
+    });
+
+    if (compQs.length > 0) {
+      hasQuestions = true;
+      
+      // Add Company Header
+      var header = document.createElement('h2');
+      header.className = 'company-header';
+      header.textContent = comp;
+      header.style.marginTop = '2rem';
+      header.style.marginBottom = '1rem';
+      header.style.borderBottom = '1px solid var(--border-color, #e2e8f0)';
+      header.style.paddingBottom = '0.5rem';
+      list.appendChild(header);
+
+      compQs.forEach(function(q) {
+        var isDone = done.has(q.id);
+        var article = document.createElement('article');
+        article.className = 'qc' + (isDone ? ' done' : '');
+        article.id = 'c' + q.id;
+
+        var tagsHTML = (q.tech || []).map(function(t) {
+          return '<span class="tg tt">' + escapeHTML(t) + '</span>';
+        }).join('') +
+        '<span class="tg t' + escapeHTML((q.diff || '').toLowerCase().charAt(0)) + '">' + escapeHTML(q.diff || 'N/A') + '</span>';
+        
+        if (q.isImportant) {
+          tagsHTML += '<span class="tg t-important" style="background-color:#fee2e2;color:#991b1b;border:1px solid #f87171;">★ Important</span>';
+        }
+
+        var codeHTML = q.code
+          ? '<div class="cb" role="region" aria-label="Code example"><code>' + q.code + '</code></div>'
+          : '';
+
+        article.innerHTML =
+          '<div class="qh">' +
+            '<span class="qn" aria-hidden="true">' + String(q.id).padStart(2, '0') + '</span>' +
+            '<div class="qm">' +
+              '<div class="qt" aria-label="Tags">' + tagsHTML + '</div>' +
+              '<p class="qq" id="qq' + q.id + '">' + (q.q || '') + '</p>' +
+            '</div>' +
+            '<div class="qa">' +
+              '<button class="db' + (isDone ? ' done' : '') + '"' +
+                ' id="db' + q.id + '"' +
+                ' aria-pressed="' + (isDone ? 'true' : 'false') + '"' +
+                ' aria-label="' + (isDone ? 'Question ' + q.id + ' done. Click to undo' : 'Mark question ' + q.id + ' as done') + '"' +
+                ' data-done-id="' + q.id + '">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
+              '</button>' +
+              '<button class="toggle-btn"' +
+                ' id="tb' + q.id + '"' +
+                ' aria-expanded="false"' +
+                ' aria-controls="b' + q.id + '"' +
+                ' aria-labelledby="qq' + q.id + '"' +
+                ' data-toggle-id="' + q.id + '">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+                '<span class="sr-only">Toggle answer</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="qb" id="b' + q.id + '" role="region" aria-labelledby="qq' + q.id + '" hidden>' +
+            '<div class="sh" aria-hidden="true">Answer</div>' +
+            '<div class="at">' + (q.a || '') + '</div>' +
+            codeHTML +
+            (q.explain ? ('<div class="eb"><div class="ehe" aria-hidden="true">How to explain it to the interviewer</div><p class="et">' + q.explain + '</p></div>') : '') +
+            (q.tip ? ('<div class="tb"><div class="tbl" aria-hidden="true">Pro Tip</div><p>' + q.tip + '</p></div>') : '') +
+          '</div>';
+
+        list.appendChild(article);
+      });
+    }
   });
 
-  if (!fil.length) {
+  if (!hasQuestions) {
     var emp = document.createElement('div');
     emp.className = 'es';
     emp.setAttribute('role', 'status');
     emp.innerHTML = '<p>No questions match. Try adjusting filters or search.</p>';
     list.appendChild(emp);
-    upd();
-    return;
   }
 
-  fil.forEach(function(q) {
-    var isDone = done.has(q.id);
-    var article = document.createElement('article');
-    article.className = 'qc' + (isDone ? ' done' : '');
-    article.id = 'c' + q.id;
-
-    var tagsHTML = q.tech.map(function(t) {
-      return '<span class="tg tt">' + escapeHTML(t) + '</span>';
-    }).join('') +
-    '<span class="tg t' + escapeHTML(q.diff.toLowerCase().charAt(0)) + '">' + escapeHTML(q.diff) + '</span>' +
-    '<span class="tg tc">' + escapeHTML(q.cat) + '</span>';
-
-    var codeHTML = q.code
-      ? '<div class="cb" role="region" aria-label="Code example"><code>' + q.code + '</code></div>'
-      : '';
-
-    // NOTE: q.a, q.explain, q.tip are from a trusted, hardcoded array — not user input.
-    // q.q (question text) is also hardcoded; escapeHTML applied to dynamic parts only.
-    article.innerHTML =
-      '<div class="qh">' +
-        '<span class="qn" aria-hidden="true">' + String(q.id).padStart(2, '0') + '</span>' +
-        '<div class="qm">' +
-          '<div class="qt" aria-label="Tags">' + tagsHTML + '</div>' +
-          '<p class="qq" id="qq' + q.id + '">' + q.q + '</p>' +
-        '</div>' +
-        '<div class="qa">' +
-          '<button class="db' + (isDone ? ' done' : '') + '"' +
-            ' id="db' + q.id + '"' +
-            ' aria-pressed="' + (isDone ? 'true' : 'false') + '"' +
-            ' aria-label="' + (isDone ? 'Question ' + q.id + ' done. Click to undo' : 'Mark question ' + q.id + ' as done') + '"' +
-            ' data-done-id="' + q.id + '">' +
-            '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' +
-          '</button>' +
-          '<button class="toggle-btn"' +
-            ' id="tb' + q.id + '"' +
-            ' aria-expanded="false"' +
-            ' aria-controls="b' + q.id + '"' +
-            ' aria-labelledby="qq' + q.id + '"' +
-            ' data-toggle-id="' + q.id + '">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
-            '<span class="sr-only">Toggle answer</span>' +
-          '</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="qb" id="b' + q.id + '" role="region" aria-labelledby="qq' + q.id + '" hidden>' +
-        '<div class="sh" aria-hidden="true">Answer</div>' +
-        '<div class="at">' + q.a + '</div>' +
-        codeHTML +
-        '<div class="eb">' +
-          '<div class="ehe" aria-hidden="true">How to explain it to the interviewer</div>' +
-          '<p class="et">' + q.explain + '</p>' +
-        '</div>' +
-        '<div class="tb"><div class="tbl" aria-hidden="true">Pro Tip</div><p>' + q.tip + '</p></div>' +
-      '</div>';
-
-    list.appendChild(article);
-  });
-
-  // Attach events AFTER insertion (not via inline handlers)
-  fil.forEach(function(q) {
-    var qh = document.getElementById('c' + q.id).querySelector('.qh');
-    var doneBtn = document.getElementById('db' + q.id);
-    if (qh) qh.addEventListener('click', function() { tog(q.id); });
-    if (doneBtn) doneBtn.addEventListener('click', function(e) { e.stopPropagation(); mkDone(q.id); });
+  // Attach events AFTER insertion
+  Q.forEach(function(q) {
+    var qh = document.getElementById('c' + q.id);
+    if(qh) {
+       var qhHeader = qh.querySelector('.qh');
+       var doneBtn = document.getElementById('db' + q.id);
+       if (qhHeader) qhHeader.addEventListener('click', function() { tog(q.id); });
+       if (doneBtn) doneBtn.addEventListener('click', function(e) { e.stopPropagation(); mkDone(q.id); });
+    }
   });
 
   upd();
 }
 
-/* ── Keyboard: Escape closes open accordion ── */
 function initKeyboard() {
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
@@ -238,7 +265,6 @@ function initKeyboard() {
   });
 }
 
-/* ── Update stats ── */
 function upd() {
   var tot = Q.length;
   var dn  = done.size;
@@ -263,19 +289,17 @@ function upd() {
   var cpwrap = document.getElementById('cpwrap');
   if (cpwrap) {
     cpwrap.innerHTML = '';
-    cats.forEach(function(c) {
-      var ct = Q.filter(function(q) { return q.cat === c; }).length;
-      var cd = Q.filter(function(q) { return q.cat === c && done.has(q.id); }).length;
+    companies.forEach(function(c) {
+      var ct = Q.filter(function(q) { return q.company === c; }).length;
+      var cd = Q.filter(function(q) { return q.company === c && done.has(q.id); }).length;
       var p  = document.createElement('div');
       p.className = 'cpill';
-      // c comes from Q array (trusted), cd/ct are integers — safe
       p.innerHTML = '<span class="dot" aria-hidden="true"></span>' + escapeHTML(c) + ': ' + cd + '/' + ct;
       cpwrap.appendChild(p);
     });
   }
 }
 
-/* ── Search: debounced ── */
 function debounce(fn, delay) {
   var timer;
   return function() {
@@ -284,9 +308,8 @@ function debounce(fn, delay) {
   };
 }
 
-/* ── Init ── */
 document.addEventListener('DOMContentLoaded', function() {
-  buildCatButtons();
+  buildCompanyButtons();
   initDiffButtons();
   initKeyboard();
   document.getElementById('srch') && document.getElementById('srch').addEventListener('input', debounce(render, 200));
@@ -299,3 +322,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 };
+
+initCompanyApp(Q, 'company-questions');

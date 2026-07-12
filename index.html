@@ -190,6 +190,39 @@
             </div>
           </a>
 
+          <!-- Company Questions -->
+          <a href="company-questions/index.html" class="card card-company" id="card-company"
+            aria-label="Company Questions — Top questions from tech giants like Google, Meta, and Amazon">
+            <div class="card-band" aria-hidden="true"></div>
+            <div class="card-inner-glow" aria-hidden="true"></div>
+            <div class="card-body">
+              <div class="card-badge" aria-hidden="true">⬡ Level 04 · Companies</div>
+              <span class="card-level-icon" role="img" aria-label="Building">🏢</span>
+              <div class="diff-dots" aria-label="Difficulty: Mixed">
+                <div class="diff-dot filled" aria-hidden="true"></div>
+                <div class="diff-dot filled" aria-hidden="true"></div>
+                <div class="diff-dot filled" aria-hidden="true"></div>
+              </div>
+              <h3 class="card-title">Company Qs</h3>
+              <p class="card-subtitle">Real interview questions segregated by top tech companies. Repeated questions are
+                marked as Important.</p>
+              <ul class="card-topics" aria-label="Topics covered">
+                <li class="topic-tag">Cognizant</li>
+                <li class="topic-tag">Jio Hotstar</li>
+                <li class="topic-tag">Deloitte</li>
+                <li class="topic-tag">System Design</li>
+                <li class="topic-tag">DSA</li>
+              </ul>
+              <div class="card-meta">
+                <div class="card-count">
+                  <span class="num" aria-label="Growing">∞</span>
+                  <span class="label">Questions</span>
+                </div>
+                <span class="card-cta" aria-hidden="true">Start <span class="cta-arrow">→</span></span>
+              </div>
+            </div>
+          </a>
+
         </div><!-- /.cards-grid -->
       </section>
 
@@ -287,14 +320,43 @@
       <p class="footer-inner">
         <span>Interview Prep Hub</span>
         <span class="footer-sep" aria-hidden="true">·</span>
-        <span class="footer-accent">150 Questions</span>
+        <span class="footer-accent" id="landing-q-count">229 Questions</span>
         <span class="footer-sep" aria-hidden="true">·</span>
         <span>Progress saved in browser</span>
         <span class="footer-sep" aria-hidden="true">·</span>
-        <span>2026 Edition</span>
+        <span>Made by Prem Khodke</span>
       </p>
     </div>
   </footer>
+
+  <script>
+    // Dynamically update total question count across modules
+    (async function () {
+      try {
+        const modules = [
+          'basic-50/js/data.js',
+          'intermediate-50/js/data.js',
+          'backend-50/js/data.js',
+          'company-questions/js/data.js'
+        ];
+
+        let total = 0;
+        for (const mod of modules) {
+          const res = await fetch(mod);
+          const text = await res.text();
+          // Extract Q array using basic matching to avoid eval
+          const match = text.match(/id:\s*\d+/g);
+          if (match) total += match.length;
+        }
+
+        if (total > 0) {
+          document.getElementById('landing-q-count').textContent = total + ' Questions';
+        }
+      } catch (e) {
+        console.warn('Could not fetch dynamic questions length:', e);
+      }
+    })();
+  </script>
 
   <!-- Floating hint (mobile, aria-hidden so screen readers don't duplicate) -->
   <div class="floating-bar" aria-hidden="true">

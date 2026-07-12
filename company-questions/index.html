@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Security headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+
+  <!-- SEO -->
+  <title>Company Specific Interview Questions</title>
+  <meta name="description"
+    content="Interview questions collected from top tech companies. Filter by company and track your progress.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+
+  <!-- Stylesheet -->
+  <!-- We'll reuse basic-50 styles and components -->
+  <link rel="stylesheet" href="../basic-50/css/styles.css">
+  <link rel="stylesheet" href="css/theme.css">
+
+  <style>
+    /* Add extra style for important tag */
+    .t-important {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #f87171;
+      font-weight: 600;
+    }
+    
+    [data-theme="dark"] .t-important {
+      background-color: rgba(153, 27, 27, 0.2);
+      color: #fca5a5;
+      border: 1px solid #7f1d1d;
+    }
+  </style>
+
+  <!-- Theme: runs before body to prevent FOUC -->
+  <script src="../assets/js/theme.js"></script>
+</head>
+
+<body>
+
+  <!-- Skip navigation link (keyboard / AT users) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ARIA live region for dynamic announcements -->
+  <div id="a11y-live" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="wrap">
+
+    <iqhub-header badge="Company Edition · 2026" title="Top <em>Company</em> Questions<br>Real Interviews" sub="Google · Meta · Amazon · Microsoft · Netflix · Apple"></iqhub-header>
+
+    <main id="main-content">
+
+      <!-- Filters -->
+      <!-- Since core-app uses iqhub-filters to generate categories, we can use the same component -->
+      <iqhub-filters diffs="Easy,Medium,Hard"></iqhub-filters>
+
+      <!-- Question list -->
+      <section aria-label="Interview questions" aria-live="polite" aria-relevant="additions removals">
+        <div class="ql" id="ql" role="list"></div>
+      </section>
+
+    </main>
+
+    <iqhub-footer></iqhub-footer>
+
+  </div><!-- /.wrap -->
+
+  <!-- App JS (deferred) -->
+  <script src="../components/iqhub-components.js" defer></script>
+  <script src="js/data.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+
+</html>
