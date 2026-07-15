@@ -162,7 +162,7 @@ h1 em { font-style: normal; color: var(--accent); border-bottom: 2px solid var(-
   background: var(--progress-fill);
   border-radius: 3px;
   transition: width .5s cubic-bezier(.4,0,.2,1);
-  width: 0%;
+  width: var(--fill-pct, 0%);
 }
 .cpwrap { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
 .cpill {
@@ -397,6 +397,15 @@ footer span { color: var(--accent); font-weight: 700; }
 /* ── Live region (screen reader announcements) ── */
 #a11y-live { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 
+/* ── Stat number colour variants (replaces inline style="color:...") ── */
+.sn--accent { color: var(--accent); }
+.sn--amber  { color: var(--amber); }
+.sn--muted  { color: var(--muted); }
+
+/* ── Footer row layout (replaces inline style="margin-bottom / opacity") ── */
+.footer-top    { margin-bottom: 4px; }
+.footer-bottom { opacity: 0.8; }
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -405,3 +414,4 @@ footer span { color: var(--accent); font-weight: 700; }
     transition-duration: 0.01ms !important;
   }
 }
+

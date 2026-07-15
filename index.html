@@ -5,17 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Security headers -->
+  <!-- Security headers (CSP defined centrally in assets/js/csp.js) -->
+  <!-- Note: X-Frame-Options and frame-ancestors must be set as HTTP response headers, not <meta> tags -->
+  <script src="assets/js/csp.js"></script>
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
 
   <!-- SEO -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <title>Interview Prep Hub — 150 Full Stack Questions</title>
+  <title>Interview Prep Hub — 150+ Full Stack Questions</title>
   <meta name="description"
     content="Master your full-stack developer interview with 150 curated questions across Basic, Intermediate, and Backend levels. Track your progress and land your dream job.">
 
@@ -329,34 +328,7 @@
     </div>
   </footer>
 
-  <script>
-    // Dynamically update total question count across modules
-    (async function () {
-      try {
-        const modules = [
-          'basic-50/js/data.js',
-          'intermediate-50/js/data.js',
-          'backend-50/js/data.js',
-          'company-questions/js/data.js'
-        ];
-
-        let total = 0;
-        for (const mod of modules) {
-          const res = await fetch(mod);
-          const text = await res.text();
-          // Extract Q array using basic matching to avoid eval
-          const match = text.match(/id:\s*\d+/g);
-          if (match) total += match.length;
-        }
-
-        if (total > 0) {
-          document.getElementById('landing-q-count').textContent = total + ' Questions';
-        }
-      } catch (e) {
-        console.warn('Could not fetch dynamic questions length:', e);
-      }
-    })();
-  </script>
+  <!-- Question count updated by landing.js -->
 
   <!-- Floating hint (mobile, aria-hidden so screen readers don't duplicate) -->
   <div class="floating-bar" aria-hidden="true">
@@ -365,19 +337,7 @@
   </div>
 
   <!-- Screen-reader only utility class -->
-  <style>
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0
-    }
-  </style>
+  <!-- .sr-only is defined in landing.css -->
 
   <!-- App JS (deferred — does not block render) -->
   <script src="assets/js/landing.js" defer></script>

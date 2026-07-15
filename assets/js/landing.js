@@ -1,6 +1,7 @@
 /**
  * landing.js — Landing page interactions
  * No inline event handlers; all registered via addEventListener.
+ * No inline styles; all visual state managed via CSS classes.
  * Security: no eval(), no innerHTML of user input.
  */
 'use strict';
@@ -25,10 +26,11 @@ function initHeroAnimation() {
   if (!heroChildren.length) return;
   var delay = 0;
   heroChildren.forEach(function (el) {
-    el.style.cssText = 'opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease;';
+    // Initial hidden state set via CSS class; JS only manages timing
+    el.classList.add('hero-child--hidden');
     setTimeout(function () {
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
+      el.classList.remove('hero-child--hidden');
+      el.classList.add('hero-child--visible');
     }, delay);
     delay += 120;
   });
@@ -36,11 +38,6 @@ function initHeroAnimation() {
 
 /* ── Card ripple ── */
 function initCardRipple() {
-  // Inject ripple keyframe once
-  var s = document.createElement('style');
-  s.textContent = '@keyframes _ripple{to{transform:scale(60);opacity:0}}';
-  document.head.appendChild(s);
-
   document.querySelectorAll('.card').forEach(function (card) {
     card.addEventListener('click', function (e) {
       var rect = card.getBoundingClientRect();
@@ -48,20 +45,50 @@ function initCardRipple() {
       var y = e.clientY - rect.top;
       var ripple = document.createElement('div');
       ripple.setAttribute('aria-hidden', 'true');
-      ripple.style.cssText =
-        'position:absolute;border-radius:50%;width:8px;height:8px;pointer-events:none;z-index:10;' +
-        'left:' + (x - 4) + 'px;top:' + (y - 4) + 'px;' +
-        'background:rgba(255,255,255,.18);transform:scale(0);' +
-        'animation:_ripple .5s ease forwards;';
+      ripple.className = 'card-ripple';
+      // Use CSS custom properties for position so no inline styles needed
+      ripple.style.setProperty('--ripple-x', (x - 4) + 'px');
+      ripple.style.setProperty('--ripple-y', (y - 4) + 'px');
       card.appendChild(ripple);
       setTimeout(function () { ripple.remove(); }, 600);
     });
   });
 }
 
+/* ── Dynamic question count ── */
+async function initQuestionCount() {
+  try {
+    // basic-50, intermediate-50, backend-50 embed questions directly in app.js.
+    // company-questions stores them in a separate data.js.
+    var modules = [
+      'basic-50/js/app.js',
+      'intermediate-50/js/app.js',
+      'backend-50/js/app.js',
+      'company-questions/js/data.js'
+    ];
+    var total = 0;
+    for (var i = 0; i < modules.length; i++) {
+      var res = await fetch(modules[i]);
+      if (!res.ok) { console.warn('Could not load:', modules[i]); continue; }
+      var text = await res.text();
+      // Count unique question entries by matching {id: N
+      var match = text.match(/\{id:\s*\d+/g);
+      if (match) total += match.length;
+    }
+    if (total > 0) {
+      var el = document.getElementById('landing-q-count');
+      if (el) el.textContent = total + ' Questions';
+    }
+  } catch (e) {
+    console.warn('Could not fetch dynamic questions length:', e);
+  }
+}
+
+
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded', function () {
   initHeroAnimation();
   initScrollReveal();
   initCardRipple();
+  initQuestionCount();
 });

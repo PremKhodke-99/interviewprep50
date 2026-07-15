@@ -940,3 +940,51 @@ footer {
     animation: none;
   }
 }
+
+/* ── Screen-reader only utility ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Hero entrance animation ── */
+.hero-child--hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+
+.hero-child--visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .7s ease, transform .7s ease;
+}
+
+/* ── Card ripple ── */
+@keyframes _ripple {
+  to {
+    transform: scale(60);
+    opacity: 0;
+  }
+}
+
+.card-ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+  z-index: 10;
+  left: var(--ripple-x, 0);
+  top: var(--ripple-y, 0);
+  background: rgba(255, 255, 255, .18);
+  transform: scale(0);
+  animation: _ripple .5s ease forwards;
+}

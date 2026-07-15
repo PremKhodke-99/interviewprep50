@@ -5,13 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Security headers -->
+  <!-- Security headers (CSP defined centrally in ../assets/js/csp.js) -->
+  <!-- Note: X-Frame-Options and frame-ancestors must be set as HTTP response headers, not <meta> tags -->
+  <script src="../assets/js/csp.js"></script>
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
 
   <!-- SEO -->
   <title>50 Intermediate Full Stack Interview Questions — React Internals, TypeScript, Performance</title>

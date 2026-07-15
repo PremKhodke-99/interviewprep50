@@ -23,3 +23,27 @@
     --progress-fill: linear-gradient(90deg, #fde047, #fef08a);
   }
 }
+
+/* ── Important tag style (moved from inline <style> in index.html) ── */
+.t-important {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #f87171;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .t-important {
+  background-color: rgba(153, 27, 27, 0.2);
+  color: #fca5a5;
+  border: 1px solid #7f1d1d;
+}
+
+/* ── Company section header (replaces inline styles in app.js) ── */
+.company-header {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  padding-bottom: 0.5rem;
+}
+
+

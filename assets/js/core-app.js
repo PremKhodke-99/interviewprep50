@@ -255,7 +255,7 @@ function upd() {
   setTxt('ptxt', dn + ' / ' + tot + ' completed');
 
   var pfill = document.getElementById('pfill');
-  if (pfill) pfill.style.width = pct + '%';
+  if (pfill) pfill.style.setProperty('--fill-pct', pct + '%');
 
   var statsRegion = document.getElementById('stats-region');
   if (statsRegion) statsRegion.setAttribute('aria-label', dn + ' of ' + tot + ' questions completed, ' + pct + ' percent');

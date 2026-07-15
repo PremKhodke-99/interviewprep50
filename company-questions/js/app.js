@@ -168,10 +168,6 @@ function render() {
       var header = document.createElement('h2');
       header.className = 'company-header';
       header.textContent = comp;
-      header.style.marginTop = '2rem';
-      header.style.marginBottom = '1rem';
-      header.style.borderBottom = '1px solid var(--border-color, #e2e8f0)';
-      header.style.paddingBottom = '0.5rem';
       list.appendChild(header);
 
       compQs.forEach(function(q) {
@@ -186,7 +182,7 @@ function render() {
         '<span class="tg t' + escapeHTML((q.diff || '').toLowerCase().charAt(0)) + '">' + escapeHTML(q.diff || 'N/A') + '</span>';
         
         if (q.isImportant) {
-          tagsHTML += '<span class="tg t-important" style="background-color:#fee2e2;color:#991b1b;border:1px solid #f87171;">★ Important</span>';
+          tagsHTML += '<span class="tg t-important">★ Important</span>';
         }
 
         var codeHTML = q.code
@@ -281,7 +277,7 @@ function upd() {
   setTxt('ptxt', dn + ' / ' + tot + ' completed');
 
   var pfill = document.getElementById('pfill');
-  if (pfill) pfill.style.width = pct + '%';
+  if (pfill) pfill.style.setProperty('--fill-pct', pct + '%');
 
   var statsRegion = document.getElementById('stats-region');
   if (statsRegion) statsRegion.setAttribute('aria-label', dn + ' of ' + tot + ' questions completed, ' + pct + ' percent');

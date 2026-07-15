@@ -27,19 +27,19 @@ class IqhubHeader extends HTMLElement {
 
           <div class="stats" id="stats-region" role="group" aria-label="Progress stats" aria-live="polite">
             <div class="sp">
-              <span class="sn" id="tQ" style="color:var(--accent)">0</span>
+              <span class="sn sn--accent" id="tQ">0</span>
               <span class="sl">Total</span>
             </div>
             <div class="sp">
-              <span class="sn" id="dQ" style="color:var(--accent)">0</span>
+              <span class="sn sn--accent" id="dQ">0</span>
               <span class="sl">Done</span>
             </div>
             <div class="sp">
-              <span class="sn" id="lQ" style="color:var(--amber)">0</span>
+              <span class="sn sn--amber" id="lQ">0</span>
               <span class="sl">Left</span>
             </div>
             <div class="sp">
-              <span class="sn" id="pQ" style="color:var(--muted)">0%</span>
+              <span class="sn sn--muted" id="pQ">0%</span>
               <span class="sl">Done %</span>
             </div>
           </div>
@@ -96,12 +96,12 @@ class IqhubFooter extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <footer>
-        <div style="margin-bottom: 4px;">
+        <div class="footer-top">
           Start here before the advanced set —
           <span>Mark questions done</span> as you go —
           Progress saved in browser
         </div>
-        <div style="opacity: 0.8;">
+        <div class="footer-bottom">
           <span id="dynamic-q-count">Loading questions...</span> — Made by Prem Khodke
         </div>
       </footer>
