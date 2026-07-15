@@ -1041,5 +1041,168 @@ const Q = [
     "code": "function SearchPagination() {\n  const [query, setQuery] = useState('');\n  const [page, setPage] = useState(1);\n  const [data, setData] = useState([]);\n\n  // Debounced search logic\n  useEffect(() =&gt; {\n    const timer = setTimeout(() =&gt; {\n      fetch(`/api/search?q=${query}&page=${page}`)\n        .then(res =&gt; res.json())\n        .then(setData);\n    }, 500);\n    return () =&gt; clearTimeout(timer);\n  }, [query, page]);\n\n  // Reset page when typing\n  const handleSearch = (e) =&gt; {\n    setQuery(e.target.value);\n    setPage(1);\n  };\n\n  return (\n    &lt;div&gt;\n      &lt;input onChange={handleSearch} placeholder=\"Search...\" /&gt;\n      &lt;ul&gt;{data.map(item =&gt; &lt;li key={item.id}&gt;{item.name}&lt;/li&gt;)}&lt;/ul&gt;\n      &lt;button onClick={() =&gt; setPage(p =&gt; p - 1)} disabled={page === 1}&gt;Prev&lt;/button&gt;\n      &lt;button onClick={() =&gt; setPage(p =&gt; p + 1)}&gt;Next&lt;/button&gt;\n    &lt;/div&gt;\n  );\n}",
     "explain": "In a real interview, I would highlight edge cases: What if an old API request resolves after a new one (Race conditions)? I would solve this by using an `abortController` to cancel stale fetch requests, or use a library like React Query which handles caching and race conditions automatically.",
     "tip": "React Query (`useQuery`) makes this 10x easier by handling caching, deduping, and loading states out of the box."
+  },
+  {
+    "id": 80,
+    "company": "Accenture",
+    "tech": [
+      "HTML",
+      "CSS"
+    ],
+    "diff": "Easy",
+    "q": "What are Semantic HTML tags and why are they important?",
+    "a": "Semantic HTML tags are elements that clearly describe their meaning to both the browser and the developer. Instead of using a generic <code>&lt;div&gt;</code> for everything, semantic tags convey the purpose of the content.<br><br>Examples: <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;aside&gt;</code>, <code>&lt;footer&gt;</code>, <code>&lt;figure&gt;</code>, <code>&lt;time&gt;</code>.<br><br><strong>Why important?</strong><br>1. <strong>Accessibility</strong>: Screen readers use semantic tags to help visually impaired users navigate the page.<br>2. <strong>SEO</strong>: Search engines give more weight to content inside semantic tags like <code>&lt;article&gt;</code> vs content inside a plain <code>&lt;div&gt;</code>.<br>3. <strong>Maintainability</strong>: Code is easier to read and understand for other developers.",
+    "code": "&lt;!-- Non-semantic --&gt;\n&lt;div class=\"header\"&gt;\n  &lt;div class=\"nav\"&gt;...&lt;/div&gt;\n&lt;/div&gt;\n\n&lt;!-- Semantic --&gt;\n&lt;header&gt;\n  &lt;nav aria-label=\"Main navigation\"&gt;\n    &lt;ul&gt;\n      &lt;li&gt;&lt;a href=\"/home\"&gt;Home&lt;/a&gt;&lt;/li&gt;\n    &lt;/ul&gt;\n  &lt;/nav&gt;\n&lt;/header&gt;\n\n&lt;main&gt;\n  &lt;article&gt;\n    &lt;h1&gt;Article Title&lt;/h1&gt;\n    &lt;p&gt;Content...&lt;/p&gt;\n  &lt;/article&gt;\n&lt;/main&gt;",
+    "explain": "I think of semantic HTML as writing clean, self-documenting markup. A screen reader encountering `<nav>` knows to announce it as a navigation landmark, while a `<div class='nav'>` is invisible to assistive technology.",
+    "tip": "Use `<button>` for actions and `<a>` for navigation. Never use `<div onclick>` as a button — it breaks keyboard navigation and screen readers."
+  },
+  {
+    "id": 81,
+    "company": "Accenture",
+    "tech": [
+      "CSS"
+    ],
+    "diff": "Medium",
+    "q": "CSS Grid vs Flexbox — when do you use each?",
+    "a": "<strong>Flexbox</strong> is a one-dimensional layout system. It arranges items along either a single row OR a single column. Use it for: navigation bars, centering elements, component-level layouts (cards, button groups).<br><br><strong>CSS Grid</strong> is a two-dimensional layout system. It arranges items in rows AND columns simultaneously. Use it for: overall page layouts, image galleries, dashboards with complex grid structures.<br><br><strong>Key Rule</strong>: Flexbox for components, Grid for page-level layouts.",
+    "code": "/* Flexbox: 1D — aligning items in a nav bar */\n.navbar {\n  display: flex;\n  justify-content: space-between; /* horizontal */\n  align-items: center;            /* vertical */\n}\n\n/* Grid: 2D — full page layout */\n.app-layout {\n  display: grid;\n  grid-template-areas:\n    'header  header'\n    'sidebar content'\n    'footer  footer';\n  grid-template-columns: 250px 1fr;\n  grid-template-rows: auto 1fr auto;\n  min-height: 100vh;\n}",
+    "explain": "A common misconception is that you should choose one or the other. I use them together all the time. Grid defines the macro layout of the page, and Flexbox handles the micro layout within each grid area (like aligning items inside the header).",
+    "tip": "If your design requires knowing the number of rows AND columns, use Grid. If you only care about one axis (items wrapping onto new rows), Flexbox is simpler and sufficient."
+  },
+  {
+    "id": 82,
+    "company": "Accenture",
+    "tech": [
+      "CSS"
+    ],
+    "diff": "Easy",
+    "q": "Centering a div — explain the different approaches.",
+    "a": "There are several ways to center a div, and the 'correct' one depends on context.<br><br>1. <strong>Flexbox</strong>: Most common and recommended for centering a child within a parent.<br>2. <strong>Grid</strong>: The most concise, single-property approach.<br>3. <strong>Absolute Positioning</strong>: Classic approach for overlaying elements. Works for popups and modals.<br>4. <strong>Margin Auto</strong>: Only works horizontally for block elements with a known width.",
+    "code": "/* Method 1: Flexbox (most common) */\n.parent {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n/* Method 2: Grid (most concise) */\n.parent {\n  display: grid;\n  place-items: center; /* Shorthand for align-items + justify-items */\n}\n\n/* Method 3: Absolute + Transform (for modals/overlays) */\n.modal {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n/* Method 4: Margin auto (horizontal block centering only) */\n.container {\n  width: 960px;\n  margin: 0 auto;\n}",
+    "explain": "My go-to is `display: flex; justify-content: center; align-items: center;` on the parent. I explain the transform trick for modals — `top: 50%; left: 50%` positions the top-left corner in the center, and `translate(-50%, -50%)` shifts the element back by half its own width and height to truly center it.",
+    "tip": "The modern `place-items: center` on a Grid container is the shortest way to center something in 2026. It's a shorthand for `align-items` + `justify-items`."
+  },
+  {
+    "id": 83,
+    "company": "Accenture",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Easy",
+    "q": "Difference between var, let, and const.",
+    "a": "<code>var</code> is function-scoped and hoisted (initialized as <code>undefined</code>). It allows redeclaration and can lead to bugs.<br><code>let</code> is block-scoped, hoisted but not initialized (TDZ), allows reassignment but not redeclaration.<br><code>const</code> is block-scoped, must be initialized on declaration, cannot be reassigned. However, the contents of objects/arrays declared with <code>const</code> CAN be mutated.",
+    "code": "// var: function-scoped, causes bugs in loops\nfor (var i = 0; i &lt; 3; i++) { setTimeout(() =&gt; console.log(i), 0); }\n// Logs: 3, 3, 3 (bug! 'i' is shared)\n\n// let: block-scoped, fixes the loop bug\nfor (let i = 0; i &lt; 3; i++) { setTimeout(() =&gt; console.log(i), 0); }\n// Logs: 0, 1, 2 (correct — each iteration gets its own 'i')\n\n// const: can't reassign, but can mutate\nconst arr = [1, 2];\narr.push(3); // Valid — mutation is fine\narr = [4];   // TypeError — reassignment is not allowed",
+    "explain": "The closure-in-a-loop example is one of the most famous JavaScript interview gotchas, and it perfectly demonstrates why `let` exists. With `var`, all three setTimeout callbacks close over the SAME `i`. With `let`, each loop iteration has its own block-scoped `i`.",
+    "tip": "Default to `const`. Only downgrade to `let` when you explicitly need to reassign. Never use `var` in modern JavaScript."
+  },
+  {
+    "id": 84,
+    "company": "Accenture",
+    "tech": [
+      "JavaScript",
+      "Tooling"
+    ],
+    "diff": "Medium",
+    "q": "Package management — how do you update project dependencies?",
+    "a": "Package management is handled by tools like <strong>npm</strong> (Node Package Manager) or <strong>yarn</strong>. Dependencies are declared in <code>package.json</code>.<br><br><strong>Key commands:</strong><br>1. <code>npm install</code>: Installs all dependencies in <code>package.json</code>.<br>2. <code>npm update &lt;pkg&gt;</code>: Updates a package to the latest version within the allowed semver range.<br>3. <code>npm outdated</code>: Lists packages that are behind their latest version.<br>4. <code>npm install &lt;pkg&gt;@latest</code>: Forces install of the absolute latest version, ignoring semver.<br><br><strong>SemVer (Semantic Versioning)</strong>: <code>MAJOR.MINOR.PATCH</code> (e.g., 3.1.2). A MAJOR version change can include breaking changes.",
+    "code": "// package.json versions:\n// Exact: \"react\": \"18.2.0\"  (only this version)\n// Tilde ~: \"react\": \"~18.2.0\" (only patch updates: 18.2.x)\n// Caret ^: \"react\": \"^18.2.0\" (minor + patch: 18.x.x)\n\n// Common commands:\nnpm outdated           // See what's out of date\nnpm update             // Update within semver range\nnpm install react@latest // Force to latest\nnpx npm-check-updates -u // Update ALL packages in package.json to latest",
+    "explain": "I always run `npm outdated` before updating to see a diff of current vs wanted vs latest. For major version updates (like React 17 to 18), I check the migration guide first because they can include breaking changes.",
+    "tip": "`package-lock.json` is critical — it locks the exact versions of all transitive dependencies. Always commit it to version control so the team has reproducible builds."
+  },
+  {
+    "id": 85,
+    "company": "Accenture",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Easy",
+    "q": "What is JSON and how is it used?",
+    "a": "<strong>JSON (JavaScript Object Notation)</strong> is a lightweight, text-based data interchange format. It's human-readable and language-independent (despite the 'JavaScript' name, it's used everywhere).<br><br>It is the standard format for communicating data between a frontend and a backend via REST APIs.<br><br>JavaScript has two built-in methods to work with it:<br>1. <code>JSON.stringify(obj)</code>: Converts a JavaScript object → JSON string. Used when sending data to a server.<br>2. <code>JSON.parse(str)</code>: Converts a JSON string → JavaScript object. Used when receiving data from a server.",
+    "code": "const user = { name: 'Prem', age: 25, skills: ['React', 'JS'] };\n\n// Serialize (JS Object → JSON string)\nconst json = JSON.stringify(user);\nconsole.log(json); // '{\"name\":\"Prem\",\"age\":25,\"skills\":[\"React\",\"JS\"]}'\nconsole.log(typeof json); // 'string'\n\n// Deserialize (JSON string → JS Object)\nconst parsed = JSON.parse(json);\nconsole.log(parsed.name); // 'Prem'\nconsole.log(typeof parsed); // 'object'\n\n// Sending via fetch API\nfetch('/api/user', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify(user) // Must stringify before sending!\n});",
+    "explain": "A common bug is forgetting to call `JSON.parse()` on API responses, leading to errors when trying to access `.name` on a string. Similarly, forgetting `JSON.stringify()` before a POST body results in `[object Object]` being sent to the server.",
+    "tip": "JSON does NOT support functions, `undefined`, or `Date` objects. `JSON.stringify()` will either omit them or convert them to strings. Use `structuredClone()` for deep copying objects if you need to preserve these types."
+  },
+  {
+    "id": 86,
+    "company": "Accenture",
+    "tech": [
+      "React"
+    ],
+    "diff": "Hard",
+    "q": "How does React work internally? Explain Fiber and the Diffing Algorithm.",
+    "a": "React's job is to keep the UI in sync with the application state. Internally it works in two phases:<br><br><strong>1. Render Phase (Reconciliation)</strong>: When state changes, React creates a new Virtual DOM tree and compares it with the old one. This comparison process is called <strong>Diffing</strong>.<br><br><strong>Diffing Algorithm</strong> rules:<br>- Different element types (e.g., <code>&lt;div&gt;</code> → <code>&lt;span&gt;</code>) → tear down the old tree, build a new one.<br>- Same element type → update only the changed attributes.<br>- Lists require a <code>key</code> prop to identify which items moved.<br><br><strong>2. Commit Phase</strong>: React applies the computed changes to the actual DOM in a single batch.<br><br><strong>React Fiber</strong> is the reimplemented reconciliation engine (React 16+). It broke the render work into small units (fibers), allowing React to pause, prioritize, and abort work. This is what powers features like Concurrent Mode and Suspense.",
+    "code": "// Fiber enables interruptible rendering\n// React can now prioritize urgent updates (user input) over slow ones (data fetching)\n\n// Example: Both state updates below are handled via the Fiber scheduler\nimport { useTransition } from 'react';\n\nfunction App() {\n  const [isPending, startTransition] = useTransition();\n\n  const handleSearch = (value) =&gt; {\n    // Urgent: update the input immediately\n    setInputValue(value);\n\n    // Non-urgent: defer the heavy list re-render\n    startTransition(() =&gt; {\n      setSearchQuery(value); // This can be interrupted by user input!\n    });\n  };\n}",
+    "explain": "Before Fiber, React's reconciler was synchronous. If a component tree was expensive to render, it would block the main thread entirely, causing dropped frames and a janky UI. Fiber's innovation was making rendering interruptible — it can render a few fibers, yield control back to the browser to handle a click, and then resume.",
+    "tip": "React Fiber is the internal engine. React Concurrent Mode and `useTransition` are the user-facing APIs built on top of Fiber. You probably won't use Fiber directly, but understanding it helps you understand WHY concurrent features work."
+  },
+  {
+    "id": 87,
+    "company": "Accenture",
+    "tech": [
+      "React",
+      "Performance"
+    ],
+    "diff": "Medium",
+    "q": "Explain React.memo and useCallback. How do they work together?",
+    "a": "React re-renders a component when its state or props change. By default, when a parent re-renders, <strong>all its children re-render too</strong>, even if their props didn't change.<br><br><code>React.memo</code> is a Higher-Order Component (HOC) that wraps a component and skips re-rendering if the props are the same (using shallow comparison). It memoizes the rendered output.<br><br>The problem: if a parent passes a function as a prop, that function is recreated on every render, so the new function reference fails the shallow comparison and breaks <code>React.memo</code>.<br><br><code>useCallback</code> memoizes the function reference itself, so the same reference is passed between renders, keeping <code>React.memo</code> happy.",
+    "code": "// Without optimization: HeavyList re-renders on every App render\nconst App = () =&gt; {\n  const [count, setCount] = useState(0);\n  \n  // ❌ New function reference created every render\n  const handleItemClick = (id) =&gt; console.log(id);\n  \n  return (\n    &lt;&gt;\n      &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;Increment&lt;/button&gt;\n      &lt;HeavyList onItemClick={handleItemClick} /&gt;\n    &lt;/&gt;\n  );\n};\n\n// With optimization: HeavyList only re-renders when handleItemClick changes\nconst App = () =&gt; {\n  const [count, setCount] = useState(0);\n  \n  // ✅ Stable reference — only changes if deps change\n  const handleItemClick = useCallback((id) =&gt; console.log(id), []);\n  \n  return (\n    &lt;&gt;\n      &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;Increment&lt;/button&gt;\n      &lt;HeavyList onItemClick={handleItemClick} /&gt; {/* Won't re-render! */}\n    &lt;/&gt;\n  );\n};\n\n// HeavyList must be wrapped with React.memo for any of this to work\nconst HeavyList = React.memo(({ onItemClick }) =&gt; {\n  console.log('HeavyList rendered!');\n  return &lt;ul&gt;...&lt;/ul&gt;;\n});",
+    "explain": "React.memo and useCallback are a pair — one without the other is often useless. React.memo prevents re-renders, but only if the props are referentially equal. For primitive props (strings, numbers), React.memo alone is enough. For object or function props, you NEED useCallback/useMemo to maintain stable references.",
+    "tip": "Don't blindly wrap everything in memo and useCallback. They have overhead (memory + comparison cost). Profile first with React DevTools Profiler, then optimize only the components that are confirmed bottlenecks."
+  },
+  {
+    "id": 88,
+    "company": "Accenture",
+    "tech": [
+      "React",
+      "Performance"
+    ],
+    "diff": "Hard",
+    "q": "Different ways to optimize a React application.",
+    "a": "Performance optimization in React targets two areas: reducing the cost of renders, and reducing what is sent to the client.<br><br>1. <strong>Prevent unnecessary re-renders</strong>: `React.memo`, `useCallback`, `useMemo`, state colocation.<br>2. <strong>Reduce bundle size</strong>: Code-splitting with `React.lazy()` and dynamic `import()`. Tree-shaking dead code.<br>3. <strong>Virtualize long lists</strong>: Use `react-window` or `react-virtual` to only render visible items in a list of thousands.<br>4. <strong>Avoid layout thrashing</strong>: Batch DOM reads/writes. Use CSS transitions over JS animations.<br>5. <strong>Use a production build</strong>: Development builds include warnings and checks that significantly slow down React.<br>6. <strong>Web Workers</strong>: Move heavy computations (data processing, sorting) off the main thread.",
+    "code": "// 1. Code splitting — only load the dashboard when needed\nconst Dashboard = React.lazy(() =&gt; import('./Dashboard'));\n\n// 2. Memoize expensive computation\nconst sortedList = useMemo(\n  () =&gt; expensiveSortOperation(rawData),\n  [rawData] // Only recompute when rawData changes\n);\n\n// 3. Virtualized list — renders only ~10 items even if list has 10,000\nimport { FixedSizeList } from 'react-window';\nconst VirtualList = () =&gt; (\n  &lt;FixedSizeList height={500} itemCount={10000} itemSize={35}&gt;\n    {({ index, style }) =&gt; &lt;div style={style}&gt;Item {index}&lt;/div&gt;}\n  &lt;/FixedSizeList&gt;\n);",
+    "explain": "When asked this in interviews, I structure my answer into three tiers: network (less code sent), rendering (fewer and cheaper renders), and runtime (efficient algorithms). I also mention that profiling FIRST is essential — optimization without measurement is just guessing.",
+    "tip": "The single biggest performance win for most apps is code splitting. Splitting your bundle by route alone can reduce initial load time by 60-70% in large applications."
+  },
+  {
+    "id": 89,
+    "company": "Accenture",
+    "tech": [
+      "JavaScript",
+      "Coding"
+    ],
+    "diff": "Medium",
+    "q": "Find the second largest element in an array.",
+    "a": "We need to find the second largest unique value in the array without using built-in sort, or we can sort and pick. The efficient approach is a single-pass O(n) solution using two variables: `first` and `second`.",
+    "code": "function findSecondLargest(arr) {\n  if (arr.length &lt; 2) throw new Error('Array needs at least 2 elements');\n\n  let first = -Infinity;\n  let second = -Infinity;\n\n  for (const num of arr) {\n    if (num &gt; first) {\n      second = first; // Old first becomes second\n      first = num;   // Update first\n    } else if (num &gt; second &amp;&amp; num !== first) {\n      second = num;  // Found new second (that's not a duplicate of first)\n    }\n  }\n\n  if (second === -Infinity) throw new Error('No second largest element');\n  return second;\n}\n\nconsole.log(findSecondLargest([3, 1, 4, 1, 5, 9, 2, 6])); // 6\nconsole.log(findSecondLargest([5, 5, 5])); // Error: No second largest\n\n// Alternative: Sort approach (O(n log n))\nconst secondLargestSort = (arr) =&gt; [...new Set(arr)].sort((a, b) =&gt; b - a)[1];",
+    "explain": "The O(n) single-pass approach is the preferred answer in an interview. The key edge case is handling duplicates — if the array is `[5, 5, 3]`, the second largest should be `3`, not `5` again. The `num !== first` condition handles this.",
+    "tip": "Always clarify edge cases before coding: 1) What if all elements are equal? 2) What if the array has only one element? 3) Are negative numbers possible? This shows structured thinking, which interviewers love."
+  },
+  {
+    "id": 90,
+    "company": "Accenture",
+    "tech": [
+      "JavaScript",
+      "Coding"
+    ],
+    "diff": "Hard",
+    "q": "Implement a debounce function from scratch.",
+    "a": "Debouncing ensures a function is only called after a specified delay since its last invocation. Essential for search inputs, resize handlers, and API calls triggered by user typing.",
+    "code": "function debounce(func, delay) {\n  let timeoutId = null;\n\n  return function(...args) {\n    // 'this' context is preserved for method usage\n    const context = this;\n\n    // Clear the previous timer every time the function is called\n    clearTimeout(timeoutId);\n\n    // Set a new timer\n    timeoutId = setTimeout(function() {\n      func.apply(context, args);\n      timeoutId = null; // Reset after execution\n    }, delay);\n  };\n}\n\n// Usage:\nconst searchAPI = (query) =&gt; console.log('API call with:', query);\nconst debouncedSearch = debounce(searchAPI, 300);\n\n// Simulate rapid typing\ndebouncedSearch('r');      // Cancelled\ndebouncedSearch('re');     // Cancelled\ndebouncedSearch('rea');    // Cancelled\ndebouncedSearch('react');  // This fires after 300ms\n// Only one API call is made!",
+    "explain": "The closure over `timeoutId` is the heart of debounce. The returned function 'remembers' the `timeoutId` variable across multiple calls. Every invocation clears the previous timer and sets a new one, so only the LAST call after the user stops triggers the actual function.",
+    "tip": "Debounce delays until AFTER a burst of calls stops. Throttle allows a function to run at most once per interval. Use debounce for search input, throttle for scroll events."
+  },
+  {
+    "id": 91,
+    "company": "Accenture",
+    "tech": [
+      "JavaScript",
+      "Coding"
+    ],
+    "diff": "Medium",
+    "q": "Flatten a nested array — implement array flattening.",
+    "a": "Flattening means converting a deeply nested array into a single-level array. There are multiple approaches: using the modern built-in `Array.prototype.flat()`, a recursive solution, and a stack-based iterative solution.",
+    "code": "// Method 1: Modern built-in (ES2019)\nconst nested = [1, [2, [3, [4]]], 5];\nconsole.log(nested.flat());       // [1, 2, [3, [4]], 5] — 1 level\nconsole.log(nested.flat(2));      // [1, 2, 3, [4], 5] — 2 levels\nconsole.log(nested.flat(Infinity)); // [1, 2, 3, 4, 5] — all levels\n\n// Method 2: Recursive (custom implementation)\nfunction flattenRecursive(arr) {\n  return arr.reduce((acc, item) =&gt; {\n    if (Array.isArray(item)) {\n      return acc.concat(flattenRecursive(item));\n    }\n    return acc.concat(item);\n  }, []);\n}\n\n// Method 3: Stack-based iterative (avoids call stack limit)\nfunction flattenIterative(arr) {\n  const stack = [...arr];\n  const result = [];\n  while (stack.length) {\n    const item = stack.pop();\n    if (Array.isArray(item)) {\n      stack.push(...item); // Push children back onto stack\n    } else {\n      result.unshift(item); // Add to front of result\n    }\n  }\n  return result;\n}",
+    "explain": "For an interview, I would first mention `flat(Infinity)`, then implement the recursive approach using `reduce`. The recursive solution might hit the call stack limit for deeply nested arrays (stack overflow), which is why the iterative stack-based approach is the most robust production solution.",
+    "tip": "The `Array.prototype.flatMap()` method is a useful combination of `.map()` followed by `.flat(1)`. It's great for transforming data that produces nested arrays (like mapping each sentence to an array of words)."
   }
 ];
