@@ -1204,5 +1204,326 @@ const Q = [
     "code": "// Method 1: Modern built-in (ES2019)\nconst nested = [1, [2, [3, [4]]], 5];\nconsole.log(nested.flat());       // [1, 2, [3, [4]], 5] — 1 level\nconsole.log(nested.flat(2));      // [1, 2, 3, [4], 5] — 2 levels\nconsole.log(nested.flat(Infinity)); // [1, 2, 3, 4, 5] — all levels\n\n// Method 2: Recursive (custom implementation)\nfunction flattenRecursive(arr) {\n  return arr.reduce((acc, item) =&gt; {\n    if (Array.isArray(item)) {\n      return acc.concat(flattenRecursive(item));\n    }\n    return acc.concat(item);\n  }, []);\n}\n\n// Method 3: Stack-based iterative (avoids call stack limit)\nfunction flattenIterative(arr) {\n  const stack = [...arr];\n  const result = [];\n  while (stack.length) {\n    const item = stack.pop();\n    if (Array.isArray(item)) {\n      stack.push(...item); // Push children back onto stack\n    } else {\n      result.unshift(item); // Add to front of result\n    }\n  }\n  return result;\n}",
     "explain": "For an interview, I would first mention `flat(Infinity)`, then implement the recursive approach using `reduce`. The recursive solution might hit the call stack limit for deeply nested arrays (stack overflow), which is why the iterative stack-based approach is the most robust production solution.",
     "tip": "The `Array.prototype.flatMap()` method is a useful combination of `.map()` followed by `.flat(1)`. It's great for transforming data that produces nested arrays (like mapping each sentence to an array of words)."
+  },
+  {
+    "id": 92,
+    "company": "TCS",
+    "tech": [
+      "React"
+    ],
+    "diff": "Medium",
+    "q": "Controlled vs Uncontrolled Components in React.",
+    "a": "The distinction is about <strong>who owns the form element's state</strong>.<br><br><strong>Controlled Component</strong>: React state is the single source of truth. The input's value is driven by a state variable and every keystroke calls <code>onChange</code> to update state. React is always in control.<br><br><strong>Uncontrolled Component</strong>: The DOM itself manages the state. You read the value only when needed (e.g., on submit) using a <code>ref</code>. React does not track intermediate changes.<br><br>Use controlled when you need validation on every keystroke, conditional disabling of buttons, or formatted inputs. Use uncontrolled for simple file inputs or when integrating with non-React libraries.",
+    "code": "// ✅ Controlled — React owns the value\nfunction ControlledInput() {\n  const [value, setValue] = useState('');\n  return (\n    &lt;input\n      value={value}               // Driven by state\n      onChange={e =&gt; setValue(e.target.value)}\n    /&gt;\n  );\n}\n\n// ✅ Uncontrolled — DOM owns the value\nfunction UncontrolledInput() {\n  const inputRef = useRef(null);\n\n  const handleSubmit = () =&gt; {\n    console.log(inputRef.current.value); // Read on demand\n  };\n\n  return &lt;input ref={inputRef} defaultValue=\"Initial\" /&gt;;\n}",
+    "explain": "Controlled components are the React way — they make form state predictable and testable. The `value` prop + `onChange` pattern is React's equivalent of binding. Uncontrolled components are an escape hatch for special cases. A common interview question is: 'Why does setting `value` without `onChange` make an input read-only?' — because React controls the value but has no way to update it from user input.",
+    "tip": "The `defaultValue` prop sets an initial value for uncontrolled inputs without making them controlled. This is different from `value`, which locks the component into controlled mode."
+  },
+  {
+    "id": 93,
+    "company": "TCS",
+    "tech": [
+      "React"
+    ],
+    "diff": "Hard",
+    "q": "Ref Forwarding in React — what is it and why is it needed?",
+    "a": "<strong>Ref Forwarding</strong> is a technique for passing a <code>ref</code> through a component to one of its children.<br><br>By default, when you attach a <code>ref</code> to a custom component, you get a reference to the component instance (class) or <code>null</code> (function). You cannot directly access the underlying DOM node of a child component. <code>React.forwardRef</code> explicitly allows a parent to 'reach through' a component and attach a ref to a specific DOM element inside it.<br><br>In React 19, <code>ref</code> is now a regular prop — you no longer need <code>forwardRef</code>. You just accept it in your component's props directly.",
+    "code": "// React 18 way: using forwardRef\nconst CustomInput = React.forwardRef((props, ref) =&gt; (\n  &lt;input ref={ref} {...props} /&gt;\n));\n\nfunction Parent() {\n  const inputRef = useRef(null);\n  return (\n    &lt;&gt;\n      &lt;CustomInput ref={inputRef} /&gt;\n      &lt;button onClick={() =&gt; inputRef.current.focus()}&gt;\n        Focus Input\n      &lt;/button&gt;\n    &lt;/&gt;\n  );\n}\n\n// React 19 way: ref is now a normal prop — no forwardRef needed!\nconst CustomInput = ({ ref, ...props }) =&gt; (\n  &lt;input ref={ref} {...props} /&gt;\n);\n// Works the same way — React 19 passes ref as a prop automatically",
+    "explain": "A classic use case is a design system's `<Button>` or `<Input>` component — consumers should be able to focus it programmatically without knowing its internal DOM structure. Without forwardRef, the ref would either point to the wrapper component instance or be null entirely.",
+    "tip": "In React 19, `React.forwardRef` is deprecated. The React team made `ref` a first-class prop to simplify the API. If you're in React 18, you still need it. If you're in React 19+, just use `ref` as a regular prop."
+  },
+  {
+    "id": 94,
+    "company": "TCS",
+    "tech": [
+      "React"
+    ],
+    "diff": "Medium",
+    "q": "React Portals — what are they and when would you use them?",
+    "a": "A <strong>Portal</strong> provides a way to render children into a DOM node that exists outside the parent component's DOM hierarchy (outside its div/container).<br><br>Normally, React renders every component as a descendant of `<div id='root'>`. A portal lets you escape this tree and render somewhere else in the document — like directly on `<body>`.<br><br><strong>Use cases</strong>:<br>1. <strong>Modals/Dialogs</strong>: To prevent `overflow: hidden` or `z-index` stacking issues from parent containers clipping the modal.<br>2. <strong>Tooltips</strong>: To ensure they always appear on top, regardless of parent z-index context.<br>3. <strong>Notification Toasts</strong>: To render them at the root of the document.",
+    "code": "import { createPortal } from 'react-dom';\n\nconst Modal = ({ isOpen, children }) =&gt; {\n  if (!isOpen) return null;\n\n  // Renders children OUTSIDE the root div — directly into document.body\n  return createPortal(\n    &lt;div className=\"modal-overlay\" role=\"dialog\" aria-modal=\"true\"&gt;\n      &lt;div className=\"modal-content\"&gt;\n        {children}\n      &lt;/div&gt;\n    &lt;/div&gt;,\n    document.body  // &lt;-- The target DOM node to render into\n  );\n};\n\n// Even though the modal renders in document.body in the real DOM,\n// React events still bubble up through the React component tree!\nfunction App() {\n  const [open, setOpen] = useState(false);\n  return (\n    &lt;div onClick={() =&gt; console.log('App clicked!')}&gt;\n      &lt;button onClick={() =&gt; setOpen(true)}&gt;Open&lt;/button&gt;\n      &lt;Modal isOpen={open}&gt;Hello from Portal!&lt;/Modal&gt;\n    &lt;/div&gt;\n  );\n}",
+    "explain": "The most important nuance about portals is that even though the HTML renders outside the root div in the actual DOM, React events still bubble up through the React component tree (not the DOM tree). So clicking inside a portal modal WILL trigger onClick handlers on its React ancestors. This is usually the desired behavior.",
+    "tip": "Always manage focus correctly in modals. When a modal opens, focus should move into it. When it closes, focus should return to the trigger element. Use `useRef` and `element.focus()` for this."
+  },
+  {
+    "id": 95,
+    "company": "TCS",
+    "tech": [
+      "React",
+      "Performance"
+    ],
+    "diff": "Medium",
+    "q": "Lazy Loading in React — what is it and how does it help performance?",
+    "a": "<strong>Lazy Loading</strong> is a strategy to defer the loading of a JavaScript module until it is actually needed by the user. By default, bundlers like Webpack package everything into one large bundle. Code splitting breaks this into smaller chunks, and lazy loading downloads them on demand.<br><br>React provides <code>React.lazy()</code> which accepts a function returning a dynamic <code>import()</code>. It must always be wrapped in a <code>Suspense</code> boundary that shows a fallback while the chunk is loading.<br><br><strong>Performance benefit</strong>: Reduces Time-to-Interactive (TTI). The user's browser only downloads the code for the current route, not the entire app.",
+    "code": "import React, { Suspense, lazy } from 'react';\nimport { Routes, Route } from 'react-router-dom';\n\n// These components are NOT loaded until the user navigates to them\nconst HomePage = lazy(() =&gt; import('./pages/HomePage'));\nconst Dashboard = lazy(() =&gt; import('./pages/Dashboard'));\nconst Settings = lazy(() =&gt; import('./pages/Settings'));\n\nfunction App() {\n  return (\n    &lt;Suspense fallback={&lt;div className=\"page-loader\"&gt;Loading...&lt;/div&gt;}&gt;\n      &lt;Routes&gt;\n        &lt;Route path=\"/\" element={&lt;HomePage /&gt;} /&gt;\n        &lt;Route path=\"/dashboard\" element={&lt;Dashboard /&gt;} /&gt;\n        &lt;Route path=\"/settings\" element={&lt;Settings /&gt;} /&gt;\n      &lt;/Routes&gt;\n    &lt;/Suspense&gt;\n  );\n}",
+    "explain": "Route-based code splitting is the most impactful and low-effort optimization you can apply to a React app. A user visiting the homepage should not pay the cost of downloading the Dashboard's code. The Suspense fallback is shown momentarily while the route chunk is fetched from the CDN.",
+    "tip": "For a better user experience, you can 'prefetch' the next route's chunk on mouse hover using `import()` manually before the user actually clicks, making the transition feel instant."
+  },
+  {
+    "id": 96,
+    "company": "TCS",
+    "tech": [
+      "React"
+    ],
+    "diff": "Medium",
+    "q": "Higher-Order Components (HOCs) in React.",
+    "a": "A <strong>Higher-Order Component</strong> is a function that takes a component and returns a new, enhanced component. It's a design pattern for reusing component logic — similar to how higher-order functions (like `map` and `filter`) work for arrays.<br><br>HOCs are typically used to inject shared behavior (authentication guards, analytics tracking, loading state, theming) without modifying the wrapped component itself.<br><br>HOCs have largely been replaced by custom Hooks in modern React, but they still appear in interview questions and legacy codebases.",
+    "code": "// HOC: adds a loading state to any component\nfunction withLoading(WrappedComponent) {\n  return function WithLoadingComponent({ isLoading, ...props }) {\n    if (isLoading) return &lt;div className=\"spinner\"&gt;Loading...&lt;/div&gt;;\n    return &lt;WrappedComponent {...props} /&gt;;\n  };\n}\n\n// HOC: Authentication guard\nfunction withAuth(WrappedComponent) {\n  return function ProtectedComponent(props) {\n    const { isAuthenticated } = useAuth();\n    if (!isAuthenticated) return &lt;Navigate to=\"/login\" /&gt;;\n    return &lt;WrappedComponent {...props} /&gt;;\n  };\n}\n\nconst UserList = ({ users }) =&gt; &lt;ul&gt;{users.map(u =&gt; &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;)}&lt;/ul&gt;;\n\n// Create enhanced versions:\nconst UserListWithLoading = withLoading(UserList);\nconst ProtectedUserList = withAuth(UserListWithLoading);\n\n// Usage:\n&lt;ProtectedUserList isLoading={true} users={[]} /&gt;",
+    "explain": "HOCs follow the principle of Composition over Inheritance. Instead of extending a base class, you wrap components to add behavior. The naming convention `withXxx` (e.g., `withAuth`, `withLoading`) is a strong signal that something is an HOC. Modern React prefers custom hooks for the same purpose since hooks can be tested in isolation and don't create 'wrapper hell' in the component tree.",
+    "tip": "Always forward props (`...props`) and refs through HOCs. If you don't, props meant for the wrapped component will be swallowed by the HOC, causing silent bugs."
+  },
+  {
+    "id": 97,
+    "company": "TCS",
+    "tech": [
+      "React",
+      "Redux"
+    ],
+    "diff": "Medium",
+    "q": "Redux useSelector — how does it work and how to optimize it?",
+    "a": "<code>useSelector</code> is a React-Redux hook that allows you to read state from the Redux store inside a functional component. It accepts a selector function (state) => value and returns the selected value.<br><br><strong>How it works</strong>: The component subscribes to the Redux store. After every action dispatch, the selector runs again and compares the new value to the previous value using strict equality (<code>===</code>). If the value changed, the component re-renders.<br><br><strong>Optimization problem</strong>: If your selector returns a new object or array on every call (even with the same data), the strict equality check always fails and the component always re-renders.",
+    "code": "import { useSelector } from 'react-redux';\nimport { createSelector } from '@reduxjs/toolkit';\n\n// ❌ Problem: Returns a new array on every call — always re-renders!\nconst activeUsers = useSelector(state =&gt;\n  state.users.filter(u =&gt; u.isActive) // New array reference every time\n);\n\n// ✅ Solution 1: Memoize with createSelector (from Reselect)\nconst selectActiveUsers = createSelector(\n  state =&gt; state.users,\n  (users) =&gt; users.filter(u =&gt; u.isActive) // Only recomputed when state.users changes\n);\nconst activeUsers = useSelector(selectActiveUsers);\n\n// ✅ Solution 2: Use shallowEqual for object comparisons\nimport { shallowEqual } from 'react-redux';\nconst { name, email } = useSelector(\n  state =&gt; ({ name: state.user.name, email: state.user.email }),\n  shallowEqual // Compare fields, not the object reference\n);",
+    "explain": "The most common Redux performance bug I've seen is using computed values (filter, map, slice) directly inside useSelector. Every render creates a new array, so the equality check always fails, causing infinite re-render loops or constant unnecessary renders.",
+    "tip": "Follow the 'selector best practices': define selectors outside of components, colocate them with their respective slice files, and use `createSelector` for any selector that transforms or derives data."
+  },
+  {
+    "id": 98,
+    "company": "TCS",
+    "tech": [
+      "React",
+      "Routing"
+    ],
+    "diff": "Medium",
+    "q": "React Routing — explain React Router and how to handle 404 (Not Found) routes.",
+    "a": "React Router is the standard routing library for React applications. It enables client-side navigation without full page reloads, mapping URL paths to React components.<br><br><strong>Key concepts (v6)</strong>:<br>- <code>BrowserRouter</code>: Wraps the app, provides routing context using the HTML5 History API.<br>- <code>Routes</code>: Container for all route definitions (replaces <code>Switch</code>).<br>- <code>Route</code>: Maps a path to a component. Matching is now exact by default in v6.<br>- <code>Link</code>: Renders an anchor tag without a page reload.<br>- <code>useNavigate</code>: Programmatic navigation.<br>- <code>useParams</code>: Access dynamic route parameters.<br><br><strong>404 Handling</strong>: Use a wildcard `path='*'` route as the last route in the `Routes` block. React Router will match it if no other route matches.",
+    "code": "import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';\n\n// 404 Page Component\nconst NotFound = () =&gt; {\n  const navigate = useNavigate();\n  return (\n    &lt;div&gt;\n      &lt;h1&gt;404 — Page Not Found&lt;/h1&gt;\n      &lt;button onClick={() =&gt; navigate('/')}&gt;Go Home&lt;/button&gt;\n    &lt;/div&gt;\n  );\n};\n\nfunction App() {\n  return (\n    &lt;BrowserRouter&gt;\n      &lt;nav&gt;\n        &lt;Link to=\"/\"&gt;Home&lt;/Link&gt; | &lt;Link to=\"/about\"&gt;About&lt;/Link&gt;\n      &lt;/nav&gt;\n\n      &lt;Routes&gt;\n        &lt;Route path=\"/\" element={&lt;Home /&gt;} /&gt;\n        &lt;Route path=\"/about\" element={&lt;About /&gt;} /&gt;\n        &lt;Route path=\"/users/:id\" element={&lt;UserProfile /&gt;} /&gt;\n\n        {/* Wildcard — must be LAST. Catches all unmatched routes. */}\n        &lt;Route path=\"*\" element={&lt;NotFound /&gt;} /&gt;\n      &lt;/Routes&gt;\n    &lt;/BrowserRouter&gt;\n  );\n}",
+    "explain": "In React Router v5, `<Switch>` was needed to stop matching after the first match. In v6, `<Routes>` handles this automatically and always picks the most specific match, so wildcard `*` only fires when nothing else matches. The order within `<Routes>` no longer matters as much, but keeping `*` last is good practice for readability.",
+    "tip": "For server-deployed apps, configure your web server (Nginx, Apache) to redirect all routes to index.html, otherwise refreshing `/dashboard` will return a real 404 from the server before React Router even loads."
+  },
+  {
+    "id": 99,
+    "company": "TCS",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Medium",
+    "q": "What is Debouncing? Implement it from scratch.",
+    "a": "<strong>Debouncing</strong> is a technique to control how often a function executes. A debounced function is called only after a specified time has passed since its LAST invocation. If the function is called again before the delay ends, the timer resets.<br><br><strong>Real-world use cases</strong>:<br>- Search autocomplete: fire API only after user stops typing for 300ms.<br>- Window resize handler: recalculate layout only after resizing ends.<br>- Form validation: validate input only after user pauses.",
+    "code": "function debounce(fn, delay) {\n  let timer;\n\n  return function (...args) {\n    clearTimeout(timer); // Cancel previous call\n    timer = setTimeout(() =&gt; {\n      fn.apply(this, args);\n    }, delay);\n  };\n}\n\n// Usage in React\nconst handleSearch = debounce((query) =&gt; {\n  fetch(`/api/search?q=${query}`).then(...);\n}, 400);\n\n// In React with useCallback to keep stable reference:\nconst debouncedSearch = useCallback(\n  debounce((query) =&gt; fetchResults(query), 400),\n  [] // Created once\n);\n\n&lt;input onChange={(e) =&gt; debouncedSearch(e.target.value)} /&gt;",
+    "explain": "The key to understanding debounce is the closure over `timer`. Every call to the returned function clears the old timer before setting a new one. Only the FINAL call — the one where the user stops triggering it — actually runs `fn` after the full delay. This is in contrast to throttle, where the function fires at a maximum rate (e.g., every 200ms), regardless of how often it's called.",
+    "tip": "Debounce: 'wait until things quiet down'. Throttle: 'run at most once every N ms'. Use debounce for search inputs. Use throttle for scroll events and game loops."
+  },
+  {
+    "id": 100,
+    "company": "TCS",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Easy",
+    "q": "Spread Operator in JavaScript — explain with examples.",
+    "a": "The <strong>Spread Operator</strong> (<code>...</code>) expands an iterable (array, object, string) into individual elements. It was introduced in ES6.<br><br>It is used for:<br>1. <strong>Copying arrays/objects</strong> (shallow copy).<br>2. <strong>Merging arrays/objects</strong>.<br>3. <strong>Passing array elements as individual arguments</strong> to a function.<br>4. <strong>Adding elements</strong> to an existing array/object immutably.",
+    "code": "// 1. Copy (shallow)\nconst original = [1, 2, 3];\nconst copy = [...original];\ncopy.push(4); // Does not affect original\n\n// 2. Merge arrays\nconst a = [1, 2], b = [3, 4];\nconst merged = [...a, ...b]; // [1, 2, 3, 4]\n\n// 3. Merge objects (later keys overwrite earlier ones)\nconst defaults = { theme: 'light', lang: 'en' };\nconst userPrefs = { lang: 'hi', fontSize: 16 };\nconst config = { ...defaults, ...userPrefs };\n// { theme: 'light', lang: 'hi', fontSize: 16 }\n\n// 4. Spread into function arguments\nconst nums = [5, 1, 9, 3];\nconsole.log(Math.max(...nums)); // 9\n// Same as: Math.max(5, 1, 9, 3)\n\n// 5. In React: clone and update state immutably\nsetUser(prev =&gt; ({ ...prev, name: 'Prem' }));",
+    "explain": "Spread creates a shallow copy — nested objects still share the same reference. It's different from `Object.assign()` in that spread is an expression (works inline in JSX and returns) while assign mutates its first argument. In React, spreading state is essential to trigger re-renders (by creating a new object reference).",
+    "tip": "The Rest operator uses the same `...` syntax but does the OPPOSITE — it collects remaining elements into an array. `const [first, ...rest] = [1, 2, 3]` gives `rest = [2, 3]`. Same syntax, opposite direction."
+  },
+  {
+    "id": 101,
+    "company": "TCS",
+    "tech": [
+      "JavaScript",
+      "Coding"
+    ],
+    "diff": "Medium",
+    "q": "Find the First Non-Repeated Character in a string.",
+    "a": "The goal is to find the first character in a string that appears exactly once. The optimal approach is O(n) using a Map (or object) to track character frequencies in one pass, then a second pass to find the first character with a count of 1.",
+    "code": "function firstNonRepeated(str) {\n  // Pass 1: Build frequency map\n  const freq = new Map();\n  for (const char of str) {\n    freq.set(char, (freq.get(char) || 0) + 1);\n  }\n\n  // Pass 2: Find the first char with count === 1\n  for (const char of str) {\n    if (freq.get(char) === 1) return char;\n  }\n\n  return null; // All characters repeat\n}\n\nconsole.log(firstNonRepeated('aabbcde')); // 'c'\nconsole.log(firstNonRepeated('aabbcc'));  // null\nconsole.log(firstNonRepeated('stress')); // 't'\n\n// One-liner alternative (less efficient — O(n²)):\nconst firstUnique = (s) =&gt; [...s].find(c =&gt; s.indexOf(c) === s.lastIndexOf(c)) ?? null;",
+    "explain": "Using a `Map` preserves insertion order and is slightly more performant than a plain object for this use case. The two-pass approach is O(2n) = O(n) — we build the frequency map in one pass, then scan the string again from left to right to find the first character with a frequency of 1. This preserves the original order, which is critical.",
+    "tip": "A one-liner using `indexOf` vs `lastIndexOf` exists but is O(n²) — for each character, it scans the whole string. The Map approach is always preferred in interviews to show you're thinking about complexity."
+  },
+  {
+    "id": 102,
+    "company": "TCS",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Easy",
+    "q": "Hoisting in JavaScript — explain with examples.",
+    "a": "<strong>Hoisting</strong> is JavaScript's behavior of moving variable and function declarations to the top of their containing scope before code execution. However, only the declaration is hoisted — not the initialization.<br><br><strong>var</strong>: Declaration is hoisted and initialized to <code>undefined</code>.<br><strong>let / const</strong>: Declaration is hoisted but NOT initialized. Accessing them before declaration throws a ReferenceError (Temporal Dead Zone).<br><strong>Function declarations</strong>: Fully hoisted (both declaration AND body). You can call them before they appear in the code.<br><strong>Function expressions</strong> (const fn = () =>{}): Follow the same rules as var/let/const.",
+    "code": "// var: hoisted and initialized as undefined\nconsole.log(x); // undefined (no error!)\nvar x = 5;\n\n// let: hoisted but NOT initialized — TDZ\nconsole.log(y); // ReferenceError: Cannot access 'y' before initialization\nlet y = 10;\n\n// Function Declaration: fully hoisted — can call before definition\nconsole.log(greet()); // 'Hello!' — works!\nfunction greet() { return 'Hello!'; }\n\n// Function Expression: follows const rules — TDZ applies\nconsole.log(add(1, 2)); // ReferenceError\nconst add = (a, b) =&gt; a + b;",
+    "explain": "I explain hoisting as JavaScript's two-phase execution: a 'compilation phase' where all declarations are registered, and an 'execution phase' where code runs. `var` is given a default value of `undefined` during compilation. `let`/`const` are registered but left uninitialised (in the TDZ). Function declarations are fully compiled with their bodies.",
+    "tip": "Always declare variables at the TOP of their scope with `let`/`const`. Hoisting was a design quirk in early JavaScript, not a feature to rely on. The TDZ was intentionally introduced to make bugs from accidental early access visible."
+  },
+  {
+    "id": 103,
+    "company": "TCS",
+    "tech": [
+      "CSS",
+      "Performance"
+    ],
+    "diff": "Medium",
+    "q": "What are CSS Sprites and why are they used?",
+    "a": "A <strong>CSS Sprite</strong> is a single image file that contains multiple smaller images (icons, buttons, UI elements) combined into one grid. JavaScript/CSS then positions the background to display only the relevant portion of that image for each element.<br><br><strong>Why use them?</strong><br>- <strong>HTTP Request Reduction</strong>: In HTTP/1.1, every image requires a separate TCP connection. Sprites reduce 50 image requests to 1, dramatically reducing latency.<br>- <strong>Faster Page Load</strong>: Fewer round trips to the server means the page renders faster.<br><br><strong>Status today</strong>: With HTTP/2 multiplexing (multiple requests over a single connection), and modern formats like SVG sprites and icon fonts (Fontawesome), traditional CSS sprites are less critical. But the concept still appears in interviews.",
+    "code": "/* The sprite sheet: one image with many icons at known positions */\n/* sprite.png contains: \n   - User icon at position 0,0 (32x32)\n   - Settings icon at position 32,0 (32x32)\n   - Home icon at position 64,0 (32x32)\n*/\n\n.icon {\n  background-image: url('sprite.png');\n  width: 32px;\n  height: 32px;\n  display: inline-block;\n}\n\n.icon-user     { background-position: 0 0; }\n.icon-settings { background-position: -32px 0; }\n.icon-home     { background-position: -64px 0; }\n\n/* Modern alternative: SVG sprite */\n&lt;svg style=\"display:none\"&gt;\n  &lt;symbol id=\"icon-home\" viewBox=\"0 0 24 24\"&gt;\n    &lt;path d=\"M3 9l9-7 9 7v11...\" /&gt;\n  &lt;/symbol&gt;\n&lt;/svg&gt;\n&lt;!-- Use it: --&gt;\n&lt;svg&gt;&lt;use href=\"#icon-home\" /&gt;&lt;/svg&gt;",
+    "explain": "I explain sprites as a 'contact sheet' from photography — one physical image containing many logical images. The browser downloads one big file once instead of many small files many times. The performance gain was massive in the HTTP/1.1 era because browsers were limited to ~6 parallel connections per domain.",
+    "tip": "The modern equivalent is the SVG `<symbol>` + `<use>` pattern — essentially an inline SVG sprite system. It's resolution-independent, styleable with CSS, and accessible. If you use icon libraries, this is already what they do internally."
+  },
+  {
+    "id": 104,
+    "company": "TCS",
+    "tech": [
+      "CSS"
+    ],
+    "diff": "Medium",
+    "q": "How does z-index work in CSS?",
+    "a": "<code>z-index</code> controls the vertical stacking order of elements along the Z-axis (depth). An element with a higher z-index appears in front of elements with a lower z-index.<br><br><strong>Critical rule</strong>: <code>z-index</code> only works on <strong>positioned elements</strong> — those with <code>position: relative</code>, <code>absolute</code>, <code>fixed</code>, or <code>sticky</code>. Setting <code>z-index</code> on a <code>position: static</code> (default) element has zero effect.<br><br><strong>Stacking Context</strong>: Certain CSS properties create a new stacking context (an isolated Z-axis group). Elements in different stacking contexts cannot be interleaved — you compare their parent contexts, not their individual z-index values.",
+    "code": "/* z-index only works with positioning */\n.box { z-index: 100; } /* ❌ IGNORED — default position is static */\n\n.box {\n  position: relative; /* ✅ Now z-index works */\n  z-index: 100;\n}\n\n/* Stacking Context example — the classic 'z-index not working' bug */\n.parent-A {\n  position: relative;\n  z-index: 1; /* Creates its own stacking context */\n}\n.child-A {\n  position: relative;\n  z-index: 9999; /* Huge z-index, but trapped inside parent-A's context */\n}\n\n.parent-B {\n  position: relative;\n  z-index: 2; /* parent-B is above parent-A */\n}\n.child-B {\n  position: relative;\n  z-index: 1; /* Very low z-index, but parent-B wins */\n}\n/* child-B appears on top of child-A BECAUSE parent-B (z:2) > parent-A (z:1) */\n\n/* Properties that create a new stacking context: */\n/* opacity < 1, transform, filter, will-change, isolation: isolate */",
+    "explain": "The most common 'z-index bug' in professional work is elements trapped inside a stacking context. A developer sets `z-index: 9999` on a modal but it's still hidden behind another element. The fix is almost always that a parent has `opacity`, `transform`, or `will-change`, which creates a new stacking context that caps the z-index.",
+    "tip": "Use `isolation: isolate` on a component to intentionally create a new stacking context without affecting layout. This is great for design system components — it prevents their internal z-index battles from leaking into the page's global stacking context."
+  },
+  {
+    "id": 105,
+    "company": "TCS",
+    "tech": [
+      "API",
+      "JavaScript"
+    ],
+    "diff": "Hard",
+    "q": "Axios Interceptors — what are they and what are their use cases?",
+    "a": "Axios Interceptors are middleware functions that are executed before a request is sent or after a response is received, allowing you to transform, modify, or handle them globally.<br><br>There are two types:<br>1. <strong>Request Interceptor</strong>: Runs before the request is sent. Used to attach tokens, add headers, or log outgoing requests.<br>2. <strong>Response Interceptor</strong>: Runs after a response is received (or when an error occurs). Used to handle token refresh, centralize error handling, and transform response data.<br><br>Without interceptors, you'd have to add the same logic (e.g., attaching an auth token) to every single API call in your application.",
+    "code": "import axios from 'axios';\n\nconst api = axios.create({ baseURL: 'https://api.example.com' });\n\n// ── Request Interceptor ──\napi.interceptors.request.use(\n  (config) =&gt; {\n    // Attach token to every outgoing request\n    const token = localStorage.getItem('token');\n    if (token) config.headers.Authorization = `Bearer ${token}`;\n    return config;\n  },\n  (error) =&gt; Promise.reject(error)\n);\n\n// ── Response Interceptor ──\napi.interceptors.response.use(\n  (response) =&gt; {\n    // Unwrap the data to avoid writing response.data.data everywhere\n    return response.data;\n  },\n  async (error) =&gt; {\n    const originalRequest = error.config;\n\n    // Automatic token refresh on 401 Unauthorized\n    if (error.response?.status === 401 &amp;&amp; !originalRequest._retry) {\n      originalRequest._retry = true;\n      const newToken = await refreshAccessToken();\n      localStorage.setItem('token', newToken);\n      originalRequest.headers.Authorization = `Bearer ${newToken}`;\n      return api(originalRequest); // Retry original request\n    }\n\n    return Promise.reject(error);\n  }\n);",
+    "explain": "The automatic token refresh pattern in the response interceptor is the production-grade solution for handling JWT expiry. Without it, an expired token would silently fail every API call. The `_retry` flag is critical — it prevents infinite loops where the refresh itself returns 401.",
+    "tip": "Always use `axios.create()` to create a custom instance for your API. This isolates your interceptors and base URL from any third-party code that might also use Axios, preventing cross-contamination."
+  },
+  {
+    "id": 106,
+    "company": "Capgemini",
+    "tech": [
+      "React"
+    ],
+    "diff": "Easy",
+    "q": "What is React and why is it efficient?",
+    "a": "React is an open-source JavaScript <strong>library</strong> (not a framework) developed by Meta (Facebook) for building user interfaces, particularly Single Page Applications (SPAs).<br><br><strong>Why is it efficient?</strong><br>1. <strong>Virtual DOM</strong>: React maintains a lightweight in-memory representation of the real DOM. On state change, it diffs the new Virtual DOM against the old one, and only applies the minimal set of real DOM changes needed. Direct DOM manipulation is slow; the Virtual DOM batches and optimizes it.<br>2. <strong>Component-Based Architecture</strong>: UI is broken into reusable, isolated components. Changes in one component don't affect others unless explicitly connected.<br>3. <strong>Unidirectional Data Flow</strong>: Data flows from parent to child via props, making state changes predictable and easier to debug.<br>4. <strong>Declarative</strong>: You describe <em>what</em> the UI should look like for a given state, and React handles <em>how</em> to update the DOM to match.",
+    "code": "// Declarative: You describe the 'what', React handles the 'how'\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  // You don't manually update the DOM.\n  // React re-renders the component and diffs against the old Virtual DOM.\n  return (\n    &lt;div&gt;\n      &lt;p&gt;Count: {count}&lt;/p&gt;\n      &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;Increment&lt;/button&gt;\n    &lt;/div&gt;\n  );\n}\n\n// vs. Imperative (vanilla JS):\n// document.getElementById('count').textContent = count;\n// — you manually update every DOM node yourself.",
+    "explain": "React's efficiency comes from the Virtual DOM diffing algorithm (reconciliation). Instead of re-rendering the entire page on every state change, React computes the smallest possible set of DOM operations. But the real efficiency gain in large apps comes from component isolation — only components whose state or props changed re-render.",
+    "tip": "React is a UI library, not a full framework. You compose it with other tools: React Router for navigation, Redux/Zustand for state, React Query for server state. This composability is a strength, not a weakness."
+  },
+  {
+    "id": 107,
+    "company": "Capgemini",
+    "tech": [
+      "React"
+    ],
+    "diff": "Hard",
+    "q": "How does React work internally? (Virtual DOM, Reconciliation, Fiber)",
+    "a": "React's internal rendering pipeline has two distinct phases:<br><br><strong>Phase 1 — Render / Reconciliation</strong>: When state or props change, React calls your component functions again and builds a new <strong>Virtual DOM</strong> tree (a plain JS object tree). It then runs the <strong>Diffing Algorithm</strong> to compare the new tree with the previous one (the 'fiber tree'). This phase is pure and has no side effects.<br><br><strong>Phase 2 — Commit</strong>: React applies the computed changes (insertions, deletions, updates) to the actual browser DOM in a single synchronous batch.<br><br><strong>React Fiber</strong> is the engine powering this. Introduced in React 16, it broke the render work into small units called 'fibers' (one per component). This makes rendering interruptible — React can pause work mid-render, handle a high-priority user interaction, then resume. This is what enables Concurrent Features like <code>useTransition</code> and <code>Suspense</code>.",
+    "code": "// Each component becomes a 'fiber' node in the work tree\n// React processes fibers in a loop, yielding to the browser between them\n\n// Fiber enables prioritization via useTransition\nimport { useTransition } from 'react';\n\nfunction Search() {\n  const [query, setQuery] = useState('');\n  const [results, setResults] = useState([]);\n  const [isPending, startTransition] = useTransition();\n\n  const handleChange = (e) =&gt; {\n    setQuery(e.target.value); // URGENT — update input immediately\n\n    startTransition(() =&gt; {\n      // NON-URGENT — this heavy re-render can be interrupted\n      setResults(filterItems(e.target.value));\n    });\n  };\n\n  return (\n    &lt;&gt;\n      &lt;input value={query} onChange={handleChange} /&gt;\n      {isPending &amp;&amp; &lt;Spinner /&gt;}\n      &lt;ResultsList results={results} /&gt;\n    &lt;/&gt;\n  );\n}",
+    "explain": "Before Fiber (React 15), reconciliation was recursive and synchronous. If your tree had 1000 components, React would lock the main thread for the entire duration, causing dropped frames and janky UIs. Fiber's loop-based architecture solves this by processing one fiber at a time and checking if the browser needs to handle input between each one.",
+    "tip": "The 'key' prop is the most visible surface of the reconciliation algorithm. It tells the diffing algorithm to match a fiber by identity (not by position), which is critical for list performance and correctness."
+  },
+  {
+    "id": 108,
+    "company": "Capgemini",
+    "tech": [
+      "Behavioral"
+    ],
+    "diff": "Easy",
+    "q": "What is the most challenging task you handled in your project?",
+    "a": "This is a behavioral question. Structure your answer using the <strong>STAR method</strong>: <strong>S</strong>ituation (context), <strong>T</strong>ask (your responsibility), <strong>A</strong>ction (steps you took), <strong>R</strong>esult (measurable outcome).<br><br><strong>Example Answer Template</strong>:<br><em>Situation</em>: 'In my previous project, we had a dashboard that was rendering a list of 5,000+ data rows, causing the page to freeze for 3-4 seconds on load.'<br><em>Task</em>: 'I was responsible for identifying the performance bottleneck and optimizing the data grid component.'<br><em>Action</em>: 'I profiled the component using React DevTools Profiler, identified that all 5,000 rows were being mounted at once. I implemented virtual scrolling using react-window, which only renders the ~15 visible rows. I also memoized expensive cell formatters with useMemo.'<br><em>Result</em>: 'The page load time dropped from 4 seconds to under 200ms, a 95% improvement. The fix was merged and became a standard pattern for all data tables in the project.'",
+    "code": "// Example: The 'before' code that caused the bottleneck\n// Rendering ALL 5000 rows in the DOM at once:\nconst DataGrid = ({ rows }) =&gt; (\n  &lt;div className=\"grid\"&gt;\n    {rows.map(row =&gt; &lt;Row key={row.id} data={row} /&gt;)}\n    {/* 5000 DOM nodes — browser chokes */}\n  &lt;/div&gt;\n);\n\n// The 'after' solution — react-window virtual scrolling:\nimport { FixedSizeList } from 'react-window';\nconst DataGrid = ({ rows }) =&gt; (\n  &lt;FixedSizeList\n    height={600} itemCount={rows.length} itemSize={40}\n  &gt;\n    {({ index, style }) =&gt; &lt;Row key={rows[index].id} style={style} data={rows[index]} /&gt;}\n  &lt;/FixedSizeList&gt;\n  // Only ~15 DOM nodes visible — instant render\n);",
+    "explain": "Interviewers ask this to assess problem-solving, ownership, and communication. They want to see that you understand the root cause (not just applied a Stack Overflow fix), that you measured the impact, and that you can articulate the trade-offs. Always end with a quantified result — '3x faster' is far more impressive than 'it got better'.",
+    "tip": "Prepare 2-3 STAR stories before your interview. Pick challenges that showcase: (1) a technical deep dive, (2) cross-team collaboration, and (3) handling ambiguity or a production incident. Rotate based on what the interviewer seems to value."
+  },
+  {
+    "id": 109,
+    "company": "Capgemini",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Medium",
+    "q": "Is JavaScript tightly coupled or loosely coupled?",
+    "a": "JavaScript itself is a <strong>loosely typed / weakly typed language</strong> — its types are checked at runtime, not compile time, and types can be implicitly coerced.<br><br>In terms of <strong>software architecture</strong>, JavaScript supports <em>both</em> tightly and loosely coupled patterns, but the language and ecosystem strongly encourage loose coupling:<br><br>1. <strong>Dynamic typing</strong>: Any function can accept any type — no rigid type contracts force tight coupling.<br>2. <strong>First-class functions</strong>: Functions can be passed as arguments (callbacks, HOFs), separating concerns and reducing direct dependencies.<br>3. <strong>Modules (ES Modules)</strong>: Explicit import/export boundaries make dependencies clear and controllable.<br>4. <strong>Event-driven programming</strong>: The browser event system is the quintessential loosely coupled pattern — emitters don't know who is listening.",
+    "code": "// ❌ Tightly Coupled — component directly creates its own dependency\nclass OrderService {\n  constructor() {\n    this.db = new MySQLDatabase(); // Hard dependency — untestable!\n  }\n}\n\n// ✅ Loosely Coupled — dependency is injected (Dependency Injection)\nclass OrderService {\n  constructor(database) {\n    this.db = database; // Any object with the right interface works\n  }\n}\nconst service = new OrderService(new MySQLDatabase());\nconst testService = new OrderService(new MockDatabase()); // Easy to test!\n\n// ✅ Loosely Coupled — Event-driven\ndocument.addEventListener('user:logged-in', handleLogin); // Emitter doesn't know handler\ndocument.dispatchEvent(new CustomEvent('user:logged-in', { detail: user }));",
+    "explain": "The interviewer is testing whether you understand language characteristics vs. architectural patterns. JavaScript the language is loosely typed. Good JavaScript architecture is loosely coupled (via DI, event emitters, modules). Bad JavaScript code can absolutely be tightly coupled — e.g., modules importing concrete implementations directly.",
+    "tip": "TypeScript is the ecosystem's answer to 'I want the flexibility of JavaScript but with type safety at the boundaries'. It adds a compile-time type contract layer without changing JavaScript's runtime behavior."
+  },
+  {
+    "id": 110,
+    "company": "Capgemini",
+    "tech": [
+      "TypeScript"
+    ],
+    "diff": "Medium",
+    "q": "Why do we use TypeScript? What problems does it solve?",
+    "a": "TypeScript is a statically-typed superset of JavaScript developed by Microsoft. All valid JavaScript is valid TypeScript.<br><br><strong>Problems it solves</strong>:<br>1. <strong>Catches bugs at compile time</strong>: Type errors are found before the code runs, not after a user hits a bug in production.<br>2. <strong>Better IDE support (IntelliSense)</strong>: Autocomplete, inline docs, and safe refactoring because the editor understands types.<br>3. <strong>Self-documenting code</strong>: Function signatures clearly describe their inputs and outputs — less need for comments.<br>4. <strong>Safer refactoring</strong>: Renaming a variable or changing a function signature shows every affected call site immediately.<br>5. <strong>Team scalability</strong>: Explicit contracts between modules make large team collaboration much safer.",
+    "code": "// ❌ JavaScript — bug only discovered at runtime\nfunction getUser(id) {\n  return fetch(`/api/users/${id}`).then(r =&gt; r.json());\n}\ngetUser('not-a-number'); // No warning! Bug surfaces at runtime.\n\n// ✅ TypeScript — bug caught at compile time\ninterface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nasync function getUser(id: number): Promise&lt;User&gt; {\n  const res = await fetch(`/api/users/${id}`);\n  return res.json() as User;\n}\n\ngetUser('not-a-number'); // ❌ Compile-time Error: 'string' is not assignable to 'number'\ngetUser(42); // ✅",
+    "explain": "The ROI of TypeScript increases with team size and project longevity. In a solo weekend project, types can feel like overhead. In a team of 10 working on a 100k-line codebase for 2 years, TypeScript is the difference between confident refactoring and living in fear of breaking something.",
+    "tip": "Avoid using `any` — it completely disables type checking for that value, negating TypeScript's benefits. Use `unknown` instead, which forces you to narrow the type before using it. `any` is TypeScript's escape hatch; `unknown` is the safe version."
+  },
+  {
+    "id": 111,
+    "company": "Capgemini",
+    "tech": [
+      "TypeScript"
+    ],
+    "diff": "Hard",
+    "q": "How does 'extends' work in TypeScript? Difference between 'type' and 'interface'.",
+    "a": "<code>extends</code> in TypeScript is used in two contexts:<br>1. <strong>Interface/Class inheritance</strong>: An interface can extend another, inheriting all its properties.<br>2. <strong>Generic constraints</strong>: <code>&lt;T extends SomeType&gt;</code> constrains a generic type parameter to be a subtype of <code>SomeType</code>.<br><br><strong>interface vs type</strong>:<br>- <code>interface</code>: Declaration merging (you can define it twice and TypeScript merges them), extends syntax, preferred for object shapes. Better for public API definitions.<br>- <code>type</code>: More powerful — can represent unions, intersections, conditional types, mapped types, template literals. Cannot be merged. Preferred for complex type transformations.",
+    "code": "// ── extends for inheritance ──\ninterface Animal { name: string; age: number; }\ninterface Dog extends Animal { breed: string; } // Dog has name + age + breed\n\n// ── extends for generic constraints ──\nfunction getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {\n  return obj[key]; // TypeScript knows the return type!\n}\nconst user = { name: 'Prem', age: 25 };\ngetProperty(user, 'name'); // ✅ Returns string\ngetProperty(user, 'xyz');  // ❌ Compile error — 'xyz' not in keyof typeof user\n\n// ── interface: Declaration Merging ──\ninterface Window { myCustomProp: string; }\ninterface Window { anotherProp: number; }\n// TypeScript merges them: Window now has both props\n\n// ── type: Unions, Intersections, Conditional ──\ntype Status = 'pending' | 'fulfilled' | 'rejected'; // Union — interface can't do this\ntype AdminUser = User &amp; { permissions: string[] };   // Intersection\ntype IsString&lt;T&gt; = T extends string ? 'yes' : 'no'; // Conditional — interface can't do this",
+    "explain": "The practical rule I follow: use `interface` when you're defining the shape of an object/class that others will implement or extend. Use `type` when you need unions, intersections, or computed types. For React component props, either works — I use `interface Props` by convention.",
+    "tip": "Generic constraints with `extends` are incredibly powerful: `<T extends object>` ensures T is an object, `<T extends keyof U>` ensures T is a valid key of U. The `keyof` + `extends` combo is the basis for many TypeScript utility types like `Pick` and `Omit`."
+  },
+  {
+    "id": 112,
+    "company": "Capgemini",
+    "tech": [
+      "Redux",
+      "React"
+    ],
+    "diff": "Hard",
+    "q": "How does Redux work? From installation to usage in a project.",
+    "a": "Redux is a predictable state container for JavaScript apps. It provides a single source of truth (the <strong>Store</strong>) for all application state.<br><br><strong>Core concepts</strong>:<br>- <strong>Store</strong>: The single JS object holding the entire app state.<br>- <strong>Action</strong>: A plain object describing what happened (has a <code>type</code> and optional payload).<br>- <strong>Reducer</strong>: A pure function that takes the current state + action and returns the new state.<br>- <strong>Dispatch</strong>: The only way to update state — you dispatch an action to the store.<br>- <strong>Selector</strong>: A function to read a slice of state from the store.",
+    "code": "// Step 1: Install\n// npm install @reduxjs/toolkit react-redux\n\n// Step 2: Create a slice (RTK combines actions + reducer)\n// features/counter/counterSlice.js\nimport { createSlice } from '@reduxjs/toolkit';\n\nconst counterSlice = createSlice({\n  name: 'counter',\n  initialState: { value: 0 },\n  reducers: {\n    increment: (state) =&gt; { state.value += 1; }, // Immer allows 'mutation'\n    decrement: (state) =&gt; { state.value -= 1; },\n    incrementByAmount: (state, action) =&gt; { state.value += action.payload; },\n  },\n});\nexport const { increment, decrement, incrementByAmount } = counterSlice.actions;\nexport default counterSlice.reducer;\n\n// Step 3: Configure the store\n// app/store.js\nimport { configureStore } from '@reduxjs/toolkit';\nimport counterReducer from '../features/counter/counterSlice';\nexport const store = configureStore({ reducer: { counter: counterReducer } });\n\n// Step 4: Wrap app with Provider\nimport { Provider } from 'react-redux';\nReactDOM.render(&lt;Provider store={store}&gt;&lt;App /&gt;&lt;/Provider&gt;, root);\n\n// Step 5: Use in a component\nimport { useSelector, useDispatch } from 'react-redux';\nfunction Counter() {\n  const count = useSelector(state =&gt; state.counter.value);\n  const dispatch = useDispatch();\n  return (\n    &lt;&gt;\n      &lt;span&gt;{count}&lt;/span&gt;\n      &lt;button onClick={() =&gt; dispatch(increment())}&gt;+&lt;/button&gt;\n    &lt;/&gt;\n  );\n}",
+    "explain": "Redux's strict unidirectional data flow makes large-scale state completely predictable and debuggable with the Redux DevTools. Every state change is an explicit action, so you can replay the history of changes. RTK (Redux Toolkit) is now the official way to write Redux — it eliminates the boilerplate of writing action creators and switch statements manually.",
+    "tip": "Don't put everything in Redux. Local UI state (modal open/closed, form values) should stay in `useState`. Redux is best for global state that multiple distant components need: authenticated user, shopping cart, theme, notifications."
+  },
+  {
+    "id": 113,
+    "company": "Capgemini",
+    "tech": [
+      "Redux",
+      "React"
+    ],
+    "diff": "Hard",
+    "q": "Have you used Redux Toolkit (RTK) or TanStack Query? What's the difference?",
+    "a": "Both are state management tools but they solve <strong>different types of state</strong>:<br><br><strong>Redux Toolkit (RTK)</strong>: Manages <strong>client/UI state</strong> — user preferences, shopping cart, currently selected item, UI flags. This state is owned entirely by the client and has no server counterpart.<br><br><strong>TanStack Query (React Query)</strong>: Manages <strong>server state</strong> — data fetched from an API. It handles caching, background refetching, loading/error states, pagination, and optimistic updates automatically. Server state is different because it's asynchronous, can go stale, and lives on the server.",
+    "code": "// ── TanStack Query: Server state (API data) ──\nimport { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';\n\nfunction UserProfile({ userId }) {\n  // Fetches, caches, and auto-refetches — all automatic\n  const { data, isLoading, isError } = useQuery({\n    queryKey: ['user', userId],  // Cache key\n    queryFn: () =&gt; fetch(`/api/users/${userId}`).then(r =&gt; r.json()),\n    staleTime: 5 * 60 * 1000, // Cache for 5 minutes\n  });\n\n  const queryClient = useQueryClient();\n  const updateUser = useMutation({\n    mutationFn: (data) =&gt; fetch(`/api/users/${userId}`, { method: 'PUT', body: JSON.stringify(data) }),\n    onSuccess: () =&gt; {\n      queryClient.invalidateQueries({ queryKey: ['user', userId] }); // Auto-refetch\n    },\n  });\n\n  if (isLoading) return &lt;Spinner /&gt;;\n  if (isError) return &lt;Error /&gt;;\n  return &lt;div&gt;{data.name}&lt;/div&gt;;\n}\n\n// ── RTK Query (built into RTK) ──\n// RTK also has a built-in data fetching layer (RTK Query) that\n// competes directly with TanStack Query if you're already using Redux.",
+    "explain": "Before TanStack Query, developers managed server state in Redux — storing API responses in the store, writing loading/error reducers. This was a LOT of boilerplate for a problem that has patterns TanStack Query solves automatically (caching, deduplication, retries). Now the community generally recommends: RTK for client state, TanStack Query for server state.",
+    "tip": "TanStack Query's `queryKey` is the key insight. Any component subscribing to the same queryKey shares the same cached data and gets the same updates. It's like a pub/sub system for API data."
+  },
+  {
+    "id": 114,
+    "company": "Capgemini",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Medium",
+    "q": "What is the difference between bind() and apply() in JavaScript?",
+    "a": "Both <code>bind()</code> and <code>apply()</code> are methods on <code>Function.prototype</code> used to explicitly set the <code>this</code> context. Their key difference is <em>when</em> the function is executed.<br><br><code>apply(thisArg, [argsArray])</code>: Immediately invokes the function. Arguments are passed as an <strong>array</strong>.<br><br><code>bind(thisArg, ...args)</code>: Does NOT invoke the function. Returns a <strong>new function</strong> permanently bound to the given <code>this</code>. The bound function can be called later.<br><br><code>call(thisArg, arg1, arg2)</code>: Like apply but arguments are passed individually (comma-separated), not as an array.",
+    "code": "const person = { name: 'Prem' };\n\nfunction introduce(greeting, punctuation) {\n  console.log(`${greeting}, I'm ${this.name}${punctuation}`);\n}\n\n// apply: Invoke immediately — args as ARRAY\nintroduce.apply(person, ['Hello', '!']);\n// Output: \"Hello, I'm Prem!\"\n\n// call: Invoke immediately — args COMMA-SEPARATED (for reference)\nintroduce.call(person, 'Hi', '.');\n// Output: \"Hi, I'm Prem.\"\n\n// bind: Returns a NEW function — does not invoke immediately\nconst boundIntroduce = introduce.bind(person, 'Hey');\nboundIntroduce('?'); // Called later with the remaining arg\n// Output: \"Hey, I'm Prem?\"\n\n// Real use case of bind in React (class components)\nclass MyComponent extends React.Component {\n  constructor(props) {\n    super(props);\n    this.handleClick = this.handleClick.bind(this); // Lock 'this' to the component\n  }\n  handleClick() { console.log(this.state); } // Without bind, 'this' is undefined\n}",
+    "explain": "Memory aid: 'A' in Apply = Array. Call = Comma-separated. Bind = Build a new function for later. In modern React (functional components + hooks), you rarely need any of them since arrow functions lexically capture `this`. They're most relevant in vanilla JS, class components, and interviews.",
+    "tip": "Arrow functions cannot have their `this` changed by call, apply, or bind — they will simply ignore the first argument. Arrow functions always use the `this` from their surrounding lexical scope."
+  },
+  {
+    "id": 115,
+    "company": "Capgemini",
+    "tech": [
+      "React",
+      "Performance"
+    ],
+    "diff": "Hard",
+    "q": "What has been your experience with useCallback and useMemo in real projects?",
+    "a": "This is an experience-based question. Structure your answer to show both usage AND the understanding of trade-offs. A weak answer lists what they do. A strong answer discusses when they helped, when they hurt, and the lessons learned.<br><br><strong>What they do</strong>:<br>- <code>useMemo(fn, deps)</code>: Memoizes the <em>result</em> of a computation. Recalculates only when deps change.<br>- <code>useCallback(fn, deps)</code>: Memoizes the <em>function reference</em> itself. Returns the same function reference between renders if deps haven't changed.",
+    "code": "// ✅ Good use of useMemo: Expensive computation\nconst chartData = useMemo(() =&gt; {\n  // This processes 50,000 data points — expensive!\n  return rawData\n    .filter(d =&gt; d.date &gt;= startDate)\n    .map(d =&gt; ({ x: d.date, y: d.value * conversionRate }))\n    .sort((a, b) =&gt; a.x - b.x);\n}, [rawData, startDate, conversionRate]); // Only recomputes when these change\n\n// ✅ Good use of useCallback: Stable reference for memoized child\nconst handleRowSelect = useCallback((rowId) =&gt; {\n  setSelectedRows(prev =&gt; new Set(prev).add(rowId));\n}, []); // No deps — always stable\n\nreturn &lt;HeavyDataGrid onRowSelect={handleRowSelect} /&gt;; // React.memo won't break!\n\n// ❌ Premature optimization — adds overhead with no benefit\n// Don't do this for cheap operations:\nconst name = useMemo(() =&gt; `${firstName} ${lastName}`, [firstName, lastName]);\n// String concatenation is microseconds — useMemo is overkill here.",
+    "explain": "In interviews, share a real-sounding story: 'In our analytics dashboard, we had a component recalculating a sorted/filtered dataset of 10,000 items on every render — even unrelated state changes. I wrapped it in useMemo, profiled with React DevTools, and confirmed the render time dropped from ~80ms to ~2ms. I also learned that applying useMemo everywhere blindly can actually make things slower because of the overhead of the comparison itself. Now I profile first, then optimize.'",
+    "tip": "The React team's guidance: start without memoization. Use the React Profiler to identify slow renders. Apply useMemo/useCallback only to confirmed bottlenecks. Most simple components don't need it and the added complexity isn't worth it."
   }
 ];
