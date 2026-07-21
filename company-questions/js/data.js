@@ -1525,5 +1525,248 @@ const Q = [
     "code": "// ✅ Good use of useMemo: Expensive computation\nconst chartData = useMemo(() =&gt; {\n  // This processes 50,000 data points — expensive!\n  return rawData\n    .filter(d =&gt; d.date &gt;= startDate)\n    .map(d =&gt; ({ x: d.date, y: d.value * conversionRate }))\n    .sort((a, b) =&gt; a.x - b.x);\n}, [rawData, startDate, conversionRate]); // Only recomputes when these change\n\n// ✅ Good use of useCallback: Stable reference for memoized child\nconst handleRowSelect = useCallback((rowId) =&gt; {\n  setSelectedRows(prev =&gt; new Set(prev).add(rowId));\n}, []); // No deps — always stable\n\nreturn &lt;HeavyDataGrid onRowSelect={handleRowSelect} /&gt;; // React.memo won't break!\n\n// ❌ Premature optimization — adds overhead with no benefit\n// Don't do this for cheap operations:\nconst name = useMemo(() =&gt; `${firstName} ${lastName}`, [firstName, lastName]);\n// String concatenation is microseconds — useMemo is overkill here.",
     "explain": "In interviews, share a real-sounding story: 'In our analytics dashboard, we had a component recalculating a sorted/filtered dataset of 10,000 items on every render — even unrelated state changes. I wrapped it in useMemo, profiled with React DevTools, and confirmed the render time dropped from ~80ms to ~2ms. I also learned that applying useMemo everywhere blindly can actually make things slower because of the overhead of the comparison itself. Now I profile first, then optimize.'",
     "tip": "The React team's guidance: start without memoization. Use the React Profiler to identify slow renders. Apply useMemo/useCallback only to confirmed bottlenecks. Most simple components don't need it and the added complexity isn't worth it."
+  },
+  {
+    "id": 116,
+    "company": "Deloitte",
+    "tech": [
+      "Behavioral"
+    ],
+    "diff": "Easy",
+    "q": "Why React.js? What makes it stand out over alternatives?",
+    "a": "React was chosen by the ecosystem — and by me — for several concrete reasons:<br><br>1. <strong>Component-Based Architecture</strong>: UIs are composed from isolated, reusable pieces. A <code>&lt;Button&gt;</code> or <code>&lt;Modal&gt;</code> built once can be used everywhere, reducing duplication.<br>2. <strong>Virtual DOM Efficiency</strong>: React batches and minimizes DOM mutations, making UI updates fast without manual optimization.<br>3. <strong>Unidirectional Data Flow</strong>: Data flows predictably from parent → child, making debugging and reasoning about state much easier vs two-way binding.<br>4. <strong>Massive Ecosystem</strong>: React Router, Redux, TanStack Query, React Hook Form, Framer Motion — a rich, well-maintained ecosystem.<br>5. <strong>Flexibility</strong>: React is a library, not a framework. You choose what to pair it with. Next.js for SSR, Remix for full-stack, Vite for SPAs.<br>6. <strong>Hooks</strong>: Hooks (useState, useEffect, custom hooks) made stateful logic composable and testable without class ceremony.<br>7. <strong>Huge community + Facebook backing</strong>: Extensive documentation, StackOverflow answers, and long-term investment from Meta.",
+    "code": "// Core value prop: Reusable, composable components\nconst Button = ({ variant = 'primary', children, onClick }) =&gt; (\n  &lt;button className={`btn btn-${variant}`} onClick={onClick}&gt;\n    {children}\n  &lt;/button&gt;\n);\n\n// Used across the entire app — define once, use everywhere\n&lt;Button variant=\"danger\" onClick={handleDelete}&gt;Delete&lt;/Button&gt;\n&lt;Button variant=\"primary\" onClick={handleSave}&gt;Save&lt;/Button&gt;",
+    "explain": "When asked this in interviews, I anchor my answer in a concrete project benefit: 'In my last project, component reuse reduced the UI codebase by ~30%. We built a design system of ~40 components that every team used.' This grounds the abstract benefits in real impact.",
+    "tip": "Vue and Angular are also valid choices. If pressed on trade-offs: Angular is heavier but opinionated (good for large enterprise teams needing guardrails). Vue is gentler learning curve. React has the largest ecosystem and is the most marketable skill."
+  },
+  {
+    "id": 117,
+    "company": "Deloitte",
+    "tech": [
+      "JavaScript",
+      "Browser"
+    ],
+    "diff": "Easy",
+    "q": "Session Storage vs Local Storage — differences, use cases, and security.",
+    "a": "Both are Web Storage APIs that store key-value string data client-side, but differ in <strong>lifetime</strong>:<br><br><strong>LocalStorage</strong>: Data persists indefinitely until explicitly cleared by the application or user. Shared across all tabs/windows of the same origin.<br><br><strong>SessionStorage</strong>: Data is scoped to the browser tab/session. It is cleared when the tab is closed. Not shared between tabs — each tab gets its own instance.<br><br><strong>Comparison</strong>:<br>| | LocalStorage | SessionStorage |<br>|---|---|---|<br>| Capacity | ~5-10 MB | ~5 MB |<br>| Expiry | Never (until cleared) | Tab close |<br>| Scope | All tabs, same origin | Current tab only |<br>| Server | Never sent | Never sent |<br><br>Use <strong>LocalStorage</strong> for: User preferences (dark mode), non-sensitive cached data.<br>Use <strong>SessionStorage</strong> for: Wizard form state, one-time authentication flows, tab-specific UI state.",
+    "code": "// LocalStorage — persists across sessions\nlocalStorage.setItem('theme', 'dark');\nlocalStorage.getItem('theme'); // 'dark' — still there after browser restart\n\n// SessionStorage — cleared on tab close\nsessionStorage.setItem('checkoutStep', '2');\nsessionStorage.getItem('checkoutStep'); // '2' — gone when tab closes\n\n// Both only store strings — serialize objects!\nlocalStorage.setItem('user', JSON.stringify({ name: 'Prem' }));\nconst user = JSON.parse(localStorage.getItem('user'));\n\n// ⚠️ Security: Neither is safe for sensitive data like auth tokens!\n// Both are accessible via JS — vulnerable to XSS attacks.\n// Use HttpOnly Cookies for auth tokens instead.",
+    "explain": "The most important interview follow-up is security: 'LocalStorage is NOT a safe place for JWT tokens or sensitive data.' Because it's accessible via `window.localStorage` from any JS running on the page, an XSS attack can steal tokens. HttpOnly cookies (the server sets them, JS can't read them) are the secure solution.",
+    "tip": "A third option is `IndexedDB` — an asynchronous browser database for storing large amounts of structured data (files, blobs). Use it for offline apps or when you need to store megabytes of data."
+  },
+  {
+    "id": 118,
+    "company": "Deloitte",
+    "tech": [
+      "React"
+    ],
+    "diff": "Medium",
+    "q": "Context API — what is it, how does it work, and when should you use it?",
+    "a": "React Context API solves <strong>prop drilling</strong> — the problem of passing props through many layers of components that don't use the data themselves, just to reach a deeply nested child that does.<br><br>Context provides a way to share values (theme, user, language, permissions) globally without explicit prop passing at every level.<br><br><strong>How it works</strong>:<br>1. <code>createContext(defaultValue)</code>: Creates a Context object.<br>2. <code>&lt;Context.Provider value={...}&gt;</code>: Wraps the component tree, making the value available to all descendants.<br>3. <code>useContext(Context)</code>: Reads the value in any descendant component.<br><br><strong>When to use</strong>: Global, relatively stable data — auth user, theme, locale, permissions. NOT for high-frequency state updates.",
+    "code": "// 1. Create the context\nconst ThemeContext = createContext('light');\n\n// 2. Create a provider with state\nfunction ThemeProvider({ children }) {\n  const [theme, setTheme] = useState('light');\n  return (\n    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;\n      {children}\n    &lt;/ThemeContext.Provider&gt;\n  );\n}\n\n// 3. Custom hook to consume it cleanly\nfunction useTheme() {\n  const context = useContext(ThemeContext);\n  if (!context) throw new Error('useTheme must be used within ThemeProvider');\n  return context;\n}\n\n// 4. Consume anywhere in the tree without prop drilling\nfunction ThemeToggle() {\n  const { theme, setTheme } = useTheme();\n  return (\n    &lt;button onClick={() =&gt; setTheme(t =&gt; t === 'light' ? 'dark' : 'light')}&gt;\n      Current: {theme}\n    &lt;/button&gt;\n  );\n}",
+    "explain": "Context is NOT a replacement for Redux. Context has a performance limitation: every component consuming a context re-renders when the context value changes, even if that specific component only uses part of the value. For high-frequency updates (e.g., a live stock price), Context will cause massive unnecessary re-renders across the app.",
+    "tip": "Split your contexts by update frequency. A `UserContext` (rarely changes) and a `NotificationsContext` (changes frequently) should be separate. This prevents a notification update from re-rendering every component that only needs the user's name."
+  },
+  {
+    "id": 119,
+    "company": "Deloitte",
+    "tech": [
+      "React",
+      "Security"
+    ],
+    "diff": "Hard",
+    "q": "Authentication implementation in React — strategies and best practices.",
+    "a": "Authentication in React involves multiple layers: where to store the token, how to protect routes, and how to handle expiry.<br><br><strong>Token Storage Strategies</strong>:<br>- <strong>HttpOnly Cookie (Recommended)</strong>: Token set by server, JS cannot read it — immune to XSS. Works seamlessly with refresh token rotation.<br>- <strong>localStorage</strong>: Easy but vulnerable to XSS. Avoid for production auth tokens.<br>- <strong>In-memory state</strong>: Most secure (no persistence) but lost on page refresh — needs a silent refresh mechanism.<br><br><strong>React Implementation</strong>:<br>1. An Auth Context holds the user state and token.<br>2. Protected Routes check if the user is authenticated before rendering.<br>3. An Axios interceptor attaches the token to every request and handles 401 errors by refreshing the token.",
+    "code": "// Pattern 1: Auth Context\nconst AuthContext = createContext(null);\nfunction AuthProvider({ children }) {\n  const [user, setUser] = useState(null);\n\n  const login = async (credentials) =&gt; {\n    const { token, user } = await api.post('/auth/login', credentials);\n    // Store in HttpOnly cookie (server sets it) — or memory:\n    setUser(user);\n  };\n\n  const logout = () =&gt; { setUser(null); api.post('/auth/logout'); };\n  return &lt;AuthContext.Provider value={{ user, login, logout }}&gt;{children}&lt;/AuthContext.Provider&gt;;\n}\n\n// Pattern 2: Protected Route\nconst ProtectedRoute = ({ allowedRoles }) =&gt; {\n  const { user } = useContext(AuthContext);\n  if (!user) return &lt;Navigate to=\"/login\" replace /&gt;;\n  if (allowedRoles &amp;&amp; !allowedRoles.includes(user.role))\n    return &lt;Navigate to=\"/403\" replace /&gt;;\n  return &lt;Outlet /&gt;;\n};\n\n// Pattern 3: Usage in router\n&lt;Route element={&lt;ProtectedRoute allowedRoles={['admin']} /&gt;}&gt;\n  &lt;Route path=\"/admin\" element={&lt;AdminDashboard /&gt;} /&gt;\n&lt;/Route&gt;",
+    "explain": "The most secure production pattern is: access token in memory + refresh token in an HttpOnly cookie. When the page loads, the app silently calls `/auth/refresh` — if the refresh token cookie is valid, the server issues a new access token in memory. This gives you the security of HttpOnly cookies with short-lived access tokens.",
+    "tip": "Never trust the client for authorization. Always validate roles/permissions on the server for every API request. Frontend route guards are a UX feature (showing the right UI), not a security feature."
+  },
+  {
+    "id": 120,
+    "company": "Deloitte",
+    "tech": [
+      "JavaScript",
+      "Browser"
+    ],
+    "diff": "Medium",
+    "q": "addEventListener — how does JavaScript event handling work?",
+    "a": "The DOM Event Model has three phases for each event:<br>1. <strong>Capture Phase</strong>: Event travels from <code>document</code> down to the target element.<br>2. <strong>Target Phase</strong>: Event reaches the actual element that was interacted with.<br>3. <strong>Bubble Phase</strong>: Event travels back up from the target to <code>document</code>.<br><br><code>addEventListener(type, handler, useCapture)</code> attaches a listener. The third argument determines which phase to listen on (default is <code>false</code> = bubble phase).<br><br><strong>Event Delegation</strong>: Instead of adding a listener to every list item, add one listener to the parent. The event bubbles up, and you check <code>event.target</code> to know which child was clicked. This is especially powerful for dynamically added elements.",
+    "code": "// Basic usage\ndocument.getElementById('btn').addEventListener('click', (e) =&gt; {\n  console.log(e.target);    // Element that was clicked\n  console.log(e.currentTarget); // Element the listener is attached to\n});\n\n// Event Delegation — one listener for all &lt;li&gt; items\ndocument.getElementById('todo-list').addEventListener('click', (e) =&gt; {\n  if (e.target.matches('li')) {\n    console.log('Clicked item:', e.target.textContent);\n  }\n  if (e.target.matches('.delete-btn')) {\n    e.target.closest('li').remove();\n  }\n});\n// Works even for &lt;li&gt; items added dynamically in the future!\n\n// Stop propagation\nbtn.addEventListener('click', (e) =&gt; {\n  e.stopPropagation(); // Don't bubble to parent\n  e.preventDefault();  // Don't trigger default behavior (e.g., form submit, link navigate)\n});\n\n// Always clean up to avoid memory leaks\nuseEffect(() =&gt; {\n  const handler = (e) =&gt; { /* ... */ };\n  window.addEventListener('resize', handler);\n  return () =&gt; window.removeEventListener('resize', handler);\n}, []);",
+    "explain": "Event delegation is one of the most powerful JavaScript patterns. Before virtual DOM libraries like React, developers used delegation heavily to handle click events on lists without attaching handlers to every list item (which is expensive when a list has 1000+ items).",
+    "tip": "In React, you rarely use `addEventListener` directly because React's synthetic event system already uses event delegation internally — all events are attached to the root element, not individual DOM nodes."
+  },
+  {
+    "id": 121,
+    "company": "Deloitte",
+    "tech": [
+      "React"
+    ],
+    "diff": "Medium",
+    "q": "useLayoutEffect vs useEffect — when does each run and when do you choose which?",
+    "a": "Both run after render, but at different points in the browser's paint cycle:<br><br><code>useEffect</code>: Runs <strong>asynchronously after</strong> the browser has painted. The user sees the updated UI before the effect runs. This is the correct choice for 99% of cases: data fetching, subscriptions, timers.<br><br><code>useLayoutEffect</code>: Runs <strong>synchronously after</strong> DOM mutations but <strong>before</strong> the browser paints. This blocks the paint — the user doesn't see the UI until the effect finishes. Use it when you need to measure DOM elements or perform DOM mutations that must be reflected in the first paint to avoid visual flicker.",
+    "code": "// useEffect — runs after paint (async)\nuseEffect(() =&gt; {\n  // User sees the UI BEFORE this runs\n  document.title = `${count} items`;\n  fetchMoreData(); // Data fetching — fine here\n}, [count]);\n\n// useLayoutEffect — runs BEFORE paint (sync)\nuseLayoutEffect(() =&gt; {\n  // Measures the DOM BEFORE the user sees it\n  const { height } = ref.current.getBoundingClientRect();\n  setTooltipOffset(height); // Prevents tooltip flicker/jump\n}, []);\n\n// Classic use case: Tooltip positioning\nfunction Tooltip({ anchor, content }) {\n  const tooltipRef = useRef(null);\n  const [position, setPosition] = useState({ top: 0, left: 0 });\n\n  useLayoutEffect(() =&gt; {\n    // If we used useEffect, user would see tooltip in wrong position for 1 frame\n    const rect = anchor.getBoundingClientRect();\n    const tRect = tooltipRef.current.getBoundingClientRect();\n    setPosition({ top: rect.top - tRect.height - 8, left: rect.left });\n  }, [anchor]);\n\n  return &lt;div ref={tooltipRef} style={position}&gt;{content}&lt;/div&gt;;\n}",
+    "explain": "The rule is: start with `useEffect`. Only switch to `useLayoutEffect` if you see a visual flicker — a brief flash where the element appears in the wrong position or size before snapping into the correct one. This flicker is the signal that you need the synchronous measurement of `useLayoutEffect`.",
+    "tip": "`useLayoutEffect` fires synchronously, which means it blocks the browser from painting. A slow `useLayoutEffect` will make your UI feel janky. Keep it lean — only DOM measurements and critical mutations."
+  },
+  {
+    "id": 122,
+    "company": "Deloitte",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Medium",
+    "q": "Debouncing and Throttling — difference, implementation, and use cases.",
+    "a": "Both are techniques to control the rate at which a function executes:<br><br><strong>Debounce</strong>: Delays execution until a specified time has passed since the <em>last</em> call. Resets the timer on every call. The function fires once, after the burst of calls ends.<br><strong>Throttle</strong>: Executes the function at most once per interval, regardless of how many times it's called. The function fires regularly during a burst.<br><br><strong>Use cases</strong>:<br>- Debounce: Search autocomplete (fire API after user stops typing), resize handler (recalculate after resize ends).<br>- Throttle: Scroll events (update scroll position indicator), game loop (limit frame rate), button rate-limiting.",
+    "code": "// Debounce: fires AFTER the burst\nfunction debounce(fn, delay) {\n  let timer;\n  return (...args) =&gt; {\n    clearTimeout(timer);\n    timer = setTimeout(() =&gt; fn.apply(this, args), delay);\n  };\n}\n\n// Throttle: fires DURING the burst, at most once per interval\nfunction throttle(fn, limit) {\n  let inThrottle;\n  return (...args) =&gt; {\n    if (!inThrottle) {\n      fn.apply(this, args);\n      inThrottle = true;\n      setTimeout(() =&gt; { inThrottle = false; }, limit);\n    }\n  };\n}\n\n// Usage\nconst searchInput = document.getElementById('search');\nsearchInput.addEventListener('input', debounce((e) =&gt; {\n  fetchResults(e.target.value); // Fires 400ms after user stops typing\n}, 400));\n\nwindow.addEventListener('scroll', throttle(() =&gt; {\n  updateProgressBar(); // Fires at most once every 100ms during scroll\n}, 100));",
+    "explain": "Mental model: Debounce is like an elevator that waits for everyone to board (waits for no more calls before going). Throttle is like a turnstile that lets exactly one person through every N seconds regardless of the queue.",
+    "tip": "In React, wrap your debounced/throttled function in `useRef` or `useCallback` to prevent it from being recreated on every render, which would reset the internal timer/state and make it ineffective."
+  },
+  {
+    "id": 123,
+    "company": "Deloitte",
+    "tech": [
+      "React"
+    ],
+    "diff": "Medium",
+    "q": "useState and useEffect — deep dive into behavior and common pitfalls.",
+    "a": "<code>useState</code>: Declares state in a functional component. Returns a value and a setter. Calling the setter schedules a re-render. State updates are <strong>asynchronous and batched</strong> — the new state is not immediately reflected after calling the setter.<br><br><code>useEffect</code>: Synchronizes a component with an external system (API, DOM, timer). Runs after render. Controlled by a dependency array:<br>- No array: runs after every render.<br>- Empty <code>[]</code>: runs once on mount.<br>- <code>[dep1, dep2]</code>: runs when those values change.",
+    "code": "// useState pitfall: stale closure\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  const handleClick = () =&gt; {\n    // ❌ Both read the SAME stale `count` value (0)\n    setCount(count + 1);\n    setCount(count + 1);\n    // Result: count becomes 1, not 2\n\n    // ✅ Use functional updater — always gets the latest state\n    setCount(prev =&gt; prev + 1);\n    setCount(prev =&gt; prev + 1);\n    // Result: count becomes 2\n  };\n}\n\n// useEffect pitfall: missing cleanup causes memory leak\nuseEffect(() =&gt; {\n  const controller = new AbortController();\n\n  fetch('/api/data', { signal: controller.signal })\n    .then(r =&gt; r.json())\n    .then(setData)\n    .catch(err =&gt; { if (err.name !== 'AbortError') setError(err); });\n\n  // Cleanup: cancel the request if the component unmounts\n  return () =&gt; controller.abort();\n}, []);",
+    "explain": "The functional updater (`prev => prev + 1`) is the solution to stale closures in state updates. Since the closure captures `count` at render time, calling `setCount(count + 1)` twice uses the same snapshot. The functional form receives the freshest queued state.",
+    "tip": "In React 18+, state updates in event handlers, timeouts, and promises are ALL automatically batched. `flushSync()` from `react-dom` can opt out of batching when needed, but this is rarely necessary."
+  },
+  {
+    "id": 124,
+    "company": "Deloitte",
+    "tech": [
+      "React"
+    ],
+    "diff": "Medium",
+    "q": "useRef vs useState — when do you choose each?",
+    "a": "Both persist values across renders, but with a critical difference: <strong>useState triggers a re-render when updated; useRef does not</strong>.<br><br><code>useState</code>: Use when the value controls what is displayed in the UI. Changing it should re-render the component.<br><br><code>useRef</code>: Use when you need to remember a value <em>between</em> renders, but changing it should NOT trigger a re-render. Also the way to directly access a DOM node.",
+    "code": "// useRef for DOM access\nfunction AutoFocusInput() {\n  const inputRef = useRef(null);\n  useEffect(() =&gt; {\n    inputRef.current.focus(); // Direct DOM manipulation\n  }, []);\n  return &lt;input ref={inputRef} /&gt;;\n}\n\n// useRef to store mutable value without causing re-renders\nfunction Timer() {\n  const [seconds, setSeconds] = useState(0);\n  const intervalRef = useRef(null); // Stores the interval ID — not UI data\n\n  const start = () =&gt; {\n    intervalRef.current = setInterval(() =&gt; {\n      setSeconds(s =&gt; s + 1);\n    }, 1000);\n  };\n\n  const stop = () =&gt; clearInterval(intervalRef.current);\n\n  return &lt;&gt;&lt;span&gt;{seconds}s&lt;/span&gt; &lt;button onClick={start}&gt;Start&lt;/button&gt; &lt;button onClick={stop}&gt;Stop&lt;/button&gt;&lt;/&gt;;\n}\n\n// useRef to read the latest state inside a stale closure\nfunction Chat() {\n  const [messages, setMessages] = useState([]);\n  const messagesRef = useRef(messages);\n  messagesRef.current = messages; // Always current, no re-render\n\n  useEffect(() =&gt; {\n    const ws = new WebSocket(url);\n    ws.onmessage = (e) =&gt; {\n      // messagesRef.current is always fresh here — no stale closure!\n      console.log('Total so far:', messagesRef.current.length);\n      setMessages(prev =&gt; [...prev, e.data]);\n    };\n    return () =&gt; ws.close();\n  }, []); // Empty deps — safe because we use ref\n}",
+    "explain": "A common misuse is storing state in a ref to 'avoid re-renders'. If the value needs to show in the UI, it MUST be state — refs bypassing re-renders will cause the displayed value to go stale. Refs are for bookkeeping (interval IDs, socket instances, previous values) not UI data.",
+    "tip": "The `messagesRef.current = messages` pattern (keeping a ref in sync with state) is a clean solution to the stale closure problem in long-lived effects like WebSocket handlers."
+  },
+  {
+    "id": 125,
+    "company": "Deloitte",
+    "tech": [
+      "React"
+    ],
+    "diff": "Hard",
+    "q": "Custom Hooks — what are they, why use them, and how do you design one?",
+    "a": "Custom Hooks are JavaScript functions whose name starts with <code>use</code> and that can call other hooks. They are the primary mechanism for <strong>reusing stateful logic</strong> between components.<br><br>Without custom hooks, sharing logic between components required HOCs or render props, which added nesting complexity. Custom hooks let you extract logic into a function without changing the component tree structure.<br><br>Well-designed custom hooks follow one rule: abstract the <em>what</em> (the behavior), not the <em>how</em> (implementation details). A consumer of <code>useFetch</code> should not need to know it uses <code>AbortController` internally.",
+    "code": "// Custom hook: useFetch — reusable data fetching with states\nfunction useFetch(url) {\n  const [data, setData] = useState(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  useEffect(() =&gt; {\n    const controller = new AbortController();\n    setLoading(true);\n\n    fetch(url, { signal: controller.signal })\n      .then(r =&gt; { if (!r.ok) throw new Error(r.statusText); return r.json(); })\n      .then(data =&gt; { setData(data); setLoading(false); })\n      .catch(err =&gt; { if (err.name !== 'AbortError') { setError(err); setLoading(false); } });\n\n    return () =&gt; controller.abort();\n  }, [url]);\n\n  return { data, loading, error };\n}\n\n// Usage: logic encapsulated, component stays clean\nfunction UserProfile({ userId }) {\n  const { data: user, loading, error } = useFetch(`/api/users/${userId}`);\n\n  if (loading) return &lt;Spinner /&gt;;\n  if (error) return &lt;Error message={error.message} /&gt;;\n  return &lt;div&gt;{user.name}&lt;/div&gt;;\n}\n\n// Other examples: useDebounce, useLocalStorage, useWindowSize,\n// useOnClickOutside, useIntersectionObserver, useWebSocket",
+    "explain": "The test for whether a custom hook is well-designed: can another developer use it without reading the implementation? If yes, it's well-abstracted. I also like that custom hooks can be unit-tested in isolation with `renderHook` from React Testing Library.",
+    "tip": "Custom hooks that start with `use` are more than convention — the React linter (eslint-plugin-react-hooks) enforces rules of hooks on them. A function starting with `use` cannot be called conditionally, in loops, or in nested functions."
+  },
+  {
+    "id": 126,
+    "company": "Deloitte",
+    "tech": [
+      "React",
+      "Security"
+    ],
+    "diff": "Hard",
+    "q": "Role-Based Access Control (RBAC) in React — how do you implement it?",
+    "a": "RBAC restricts which parts of the application a user can access based on their role (e.g., admin, editor, viewer).<br><br>The implementation layers are:<br>1. <strong>Route-level protection</strong>: Guard entire routes so a non-admin cannot navigate to <code>/admin</code>.<br>2. <strong>Component-level protection</strong>: Conditionally render UI elements (buttons, menus) based on role.<br>3. <strong>Server-side enforcement</strong>: The most critical layer — every API call must validate permissions server-side. Client-side RBAC is UX only.",
+    "code": "// 1. Auth Context with role\nconst { user } = useAuth(); // user = { name: 'Prem', role: 'admin' }\n\n// 2. Permission utility\nconst PERMISSIONS = {\n  admin:  ['read', 'write', 'delete', 'manage_users'],\n  editor: ['read', 'write'],\n  viewer: ['read'],\n};\n\nfunction can(role, action) {\n  return PERMISSIONS[role]?.includes(action) ?? false;\n}\n\n// 3. Component-level guard\nfunction DeleteButton({ resourceId }) {\n  const { user } = useAuth();\n  if (!can(user.role, 'delete')) return null; // Hidden, not just disabled\n  return &lt;button onClick={() =&gt; deleteResource(resourceId)}&gt;Delete&lt;/button&gt;;\n}\n\n// 4. Route-level guard (React Router v6)\nconst ProtectedRoute = ({ allowedRoles }) =&gt; {\n  const { user } = useAuth();\n  if (!user) return &lt;Navigate to=\"/login\" replace /&gt;;\n  if (!allowedRoles.includes(user.role)) return &lt;Navigate to=\"/403\" replace /&gt;;\n  return &lt;Outlet /&gt;;\n};\n\n// 5. Custom hook for convenience\nfunction usePermission(action) {\n  const { user } = useAuth();\n  return can(user?.role, action);\n}\nconst canDelete = usePermission('delete');",
+    "explain": "A common mistake is relying on `display: none` or a CSS class to 'hide' unauthorized buttons. A curious user can open DevTools and make the button visible, then trigger the action. The defense is: hide the UI element AND enforce the permission on the server API endpoint.",
+    "tip": "Use `<Navigate replace />` (not just `<Navigate />`) when redirecting unauthorized users. The `replace` prop replaces the history entry so the user can't hit the browser 'Back' button to get back to the protected page."
+  },
+  {
+    "id": 127,
+    "company": "Deloitte",
+    "tech": [
+      "React",
+      "Redux",
+      "Performance"
+    ],
+    "diff": "Hard",
+    "q": "Redux Toolkit vs Context API vs TanStack Query — how do you choose?",
+    "a": "The choice depends on <em>what type of state</em> you're managing:<br><br><strong>Context API</strong>: Best for low-frequency global UI state — theme, authenticated user object, locale. No external dependency. Performance degrades with frequent updates because all consumers re-render on every context value change.<br><br><strong>Redux Toolkit (RTK)</strong>: Best for complex client state with many interactions — e.g., a shopping cart, undo/redo history, real-time collaborative features. Has Redux DevTools for time-travel debugging. More setup than Context but scales well.<br><br><strong>TanStack Query</strong>: Best for server/remote state — any data that lives on an API. Handles caching, background refetching, deduplication, loading/error states, and pagination automatically. Eliminates the need to put API responses in Redux.",
+    "code": "// Modern recommendation: Use all three for their specialty\n\n// Context: user identity (auth) — rarely changes\nconst { user } = useAuth();\n\n// TanStack Query: server data — API response, auto-cached\nconst { data: products } = useQuery({\n  queryKey: ['products'],\n  queryFn: fetchProducts,\n  staleTime: 5 * 60 * 1000,\n});\n\n// RTK: complex client state — shopping cart with undo\nconst cart = useSelector(state =&gt; state.cart.items);\nconst dispatch = useDispatch();\ndispatch(addToCart({ id: 1, qty: 2 }));\n\n// Result: Clean, purpose-built state architecture:\n// - No API responses polluting the Redux store\n// - No context performance issues\n// - No manual loading/error state management",
+    "explain": "The anti-pattern is storing API responses in Redux. Before TanStack Query, teams would write fetchUser action → loading reducer → success reducer → error reducer for every API endpoint. TanStack Query replaces all of that with a single `useQuery` call.",
+    "tip": "RTK also ships with RTK Query — its own data fetching and caching layer. If your team is already using Redux, RTK Query is a natural choice. If you're starting fresh, TanStack Query has a slightly gentler learning curve."
+  },
+  {
+    "id": 128,
+    "company": "Deloitte",
+    "tech": [
+      "TypeScript"
+    ],
+    "diff": "Hard",
+    "q": "TypeScript Generics — explain with practical examples.",
+    "a": "Generics allow you to write <strong>reusable, type-safe code</strong> that works with any type, while still preserving type information. Without generics, you'd use <code>any</code> (loses type safety) or write the same function multiple times for each type.<br><br>Think of generics like function parameters, but for types. Just as a function parameter lets you pass different values, a generic parameter lets you pass different types.",
+    "code": "// Problem without generics — lose type safety with 'any'\nfunction identity(arg: any): any { return arg; }\nconst result = identity(42); // result is 'any' — TypeScript can't help!\n\n// Solution with generic — type is preserved\nfunction identity&lt;T&gt;(arg: T): T { return arg; }\nconst num = identity(42);     // num is 'number'\nconst str = identity('hello'); // str is 'string'\n\n// Generic with constraints\nfunction getFirstItem&lt;T extends { id: number }&gt;(items: T[]): T {\n  return items[0];\n}\n// TypeScript knows the returned item has an 'id' property\nconst user = getFirstItem([{ id: 1, name: 'Prem' }]);\nconsole.log(user.id); // ✅\nconsole.log(user.name); // ✅ TypeScript knows the full shape\n\n// Generic in React — typed component props\ninterface ListProps&lt;T&gt; {\n  items: T[];\n  renderItem: (item: T) =&gt; React.ReactNode;\n  keyExtractor: (item: T) =&gt; string;\n}\n\nfunction List&lt;T&gt;({ items, renderItem, keyExtractor }: ListProps&lt;T&gt;) {\n  return (\n    &lt;ul&gt;\n      {items.map(item =&gt; &lt;li key={keyExtractor(item)}&gt;{renderItem(item)}&lt;/li&gt;)}\n    &lt;/ul&gt;\n  );\n}\n\n// Usage: TypeScript infers T as User automatically\n&lt;List items={users} renderItem={u =&gt; u.name} keyExtractor={u =&gt; u.id.toString()} /&gt;",
+    "explain": "The generic `List<T>` component is one of the most practical uses in React — it creates a fully typed, reusable list without requiring the component to know the shape of the items. The caller gets full autocomplete and type checking on the `renderItem` callback.",
+    "tip": "Use multiple generics when needed: `<T, K extends keyof T>` is a common pattern for object property access. The built-in `Record<K, V>`, `Partial<T>`, and `Pick<T, K>` utility types are all built on generics."
+  },
+  {
+    "id": 129,
+    "company": "Deloitte",
+    "tech": [
+      "TypeScript"
+    ],
+    "diff": "Medium",
+    "q": "TypeScript Utility Types — Partial, Pick, Omit, Record, Required, Readonly.",
+    "a": "Utility types are built-in generic types that perform common type transformations. They save you from rewriting type definitions:<br><br>- <code>Partial&lt;T&gt;</code>: Makes ALL properties optional.<br>- <code>Required&lt;T&gt;</code>: Makes ALL properties required (opposite of Partial).<br>- <code>Readonly&lt;T&gt;</code>: Makes all properties read-only — TypeScript error if you try to mutate.<br>- <code>Pick&lt;T, K&gt;</code>: Creates a type with ONLY the specified properties from T.<br>- <code>Omit&lt;T, K&gt;</code>: Creates a type WITHOUT the specified properties from T.<br>- <code>Record&lt;K, V&gt;</code>: Creates an object type with keys of type K and values of type V.",
+    "code": "interface User {\n  id: number;\n  name: string;\n  email: string;\n  password: string;\n  role: 'admin' | 'editor' | 'viewer';\n}\n\n// Partial: all fields optional — used for update payloads\ntype UpdateUserPayload = Partial&lt;User&gt;;\n// { id?: number; name?: string; email?: string; ... }\nconst update: UpdateUserPayload = { name: 'New Name' }; // ✅\n\n// Pick: only selected fields — used for API responses\ntype PublicUser = Pick&lt;User, 'id' | 'name' | 'role'&gt;;\n// { id: number; name: string; role: ... } — no password!\n\n// Omit: exclude sensitive fields — complement of Pick\ntype SafeUser = Omit&lt;User, 'password'&gt;;\n// All User fields EXCEPT password\n\n// Record: typed dictionary/map\ntype RolePermissions = Record&lt;User['role'], string[]&gt;;\nconst permissions: RolePermissions = {\n  admin:  ['read', 'write', 'delete'],\n  editor: ['read', 'write'],\n  viewer: ['read'],\n};\n\n// Readonly: immutable state (e.g., Redux state)\ntype AppState = Readonly&lt;{ user: User; cart: Product[] }&gt;;\nconst state: AppState = { user: currentUser, cart: [] };\nstate.user = anotherUser; // ❌ Error: Cannot assign to 'user' because it is read-only",
+    "explain": "These utility types compose well. `Partial<Pick<User, 'name' | 'email'>>` creates a type where only name and email are present, and both are optional — perfect for a profile update form where the user may change one or both fields.",
+    "tip": "You can build custom utility types on the same patterns: `type NonNullable<T> = T extends null | undefined ? never : T;` — this is literally the built-in `NonNullable` type written out. Understanding conditional types unlocks building your own."
+  },
+  {
+    "id": 130,
+    "company": "Deloitte",
+    "tech": [
+      "JavaScript"
+    ],
+    "diff": "Medium",
+    "q": "Microtasks vs Macrotasks in the JavaScript Event Loop.",
+    "a": "The Event Loop processes tasks from queues. Not all async tasks are equal — they're in different queues with different priorities:<br><br><strong>Macrotask Queue</strong> (Task Queue): Lower priority. Holds: <code>setTimeout</code>, <code>setInterval</code>, <code>setImmediate</code>, UI rendering, I/O callbacks.<br><br><strong>Microtask Queue</strong>: Higher priority. Holds: <code>Promise.then/catch/finally</code>, <code>queueMicrotask()</code>, <code>MutationObserver</code> callbacks.<br><br><strong>The Rule</strong>: After each macrotask, the event loop drains the <em>entire</em> microtask queue before taking the next macrotask (or allowing a paint). This means microtasks can starve the loop if they keep queuing more microtasks.",
+    "code": "console.log('1 - Sync');\n\nsetTimeout(() =&gt; console.log('4 - Macrotask (setTimeout)'), 0);\n\nPromise.resolve()\n  .then(() =&gt; {\n    console.log('2 - Microtask 1');\n    // Queuing another microtask from within a microtask\n    return Promise.resolve();\n  })\n  .then(() =&gt; console.log('3 - Microtask 2'));\n\nconsole.log('1b - Sync continued');\n\n// Output order:\n// 1 - Sync\n// 1b - Sync continued\n// 2 - Microtask 1  (entire microtask queue drained before setTimeout)\n// 3 - Microtask 2  (nested microtask runs before macrotask)\n// 4 - Macrotask (setTimeout)",
+    "explain": "The key insight is the order: Sync code → All Microtasks (until queue empty) → One Macrotask → All Microtasks → One Macrotask... This is why Promise.then callbacks run before setTimeout(fn, 0) even though both are async.",
+    "tip": "This explains a subtle React 18 behavior: React uses `queueMicrotask` internally for scheduling. Understanding the event loop explains why React batches state updates — it can process multiple `setState` calls in one microtask before allowing the browser to repaint."
+  },
+  {
+    "id": 131,
+    "company": "Deloitte",
+    "tech": [
+      "JavaScript",
+      "Performance"
+    ],
+    "diff": "Hard",
+    "q": "API Caching, Retries, and Background Sync — strategies for resilient data fetching.",
+    "a": "A resilient data layer needs three things: caching to avoid redundant requests, retries for transient failures, and background sync to keep data fresh.<br><br><strong>Caching</strong>: Store API responses client-side. On the next request, return the cache if it's still fresh (not stale). TanStack Query does this automatically with `staleTime`.<br><br><strong>Retries</strong>: If a request fails due to a network glitch (5xx), retry automatically with exponential backoff — wait 1s, then 2s, then 4s. Don't retry 4xx errors (client errors like 401, 404 won't succeed on retry).<br><br><strong>Background Sync</strong>: Periodically refetch data in the background while the user is looking at potentially stale content. Show a 'refresh' indicator if new data arrives.",
+    "code": "// TanStack Query handles all three automatically\nconst { data } = useQuery({\n  queryKey: ['dashboard-metrics'],\n  queryFn: fetchMetrics,\n  staleTime: 30_000,       // Cache is fresh for 30s — no refetch in this window\n  gcTime: 5 * 60_000,      // Garbage collect from memory after 5min of no subscribers\n  refetchOnWindowFocus: true,  // Background sync: refetch when user returns to tab\n  refetchInterval: 60_000,     // Poll every 60s for live data\n  retry: 3,                    // Retry failed requests up to 3 times\n  retryDelay: (attempt) =&gt; Math.min(1000 * 2 ** attempt, 30_000), // Exponential backoff\n});\n\n// Manual implementation of retry with exponential backoff\nasync function fetchWithRetry(url, { retries = 3, backoff = 1000 } = {}) {\n  for (let i = 0; i &lt;= retries; i++) {\n    try {\n      const res = await fetch(url);\n      if (!res.ok &amp;&amp; res.status &lt; 500) throw new Error('Client error — no retry');\n      if (!res.ok) throw new Error(`Server error: ${res.status}`);\n      return await res.json();\n    } catch (err) {\n      if (i === retries) throw err; // Give up\n      await new Promise(r =&gt; setTimeout(r, backoff * 2 ** i)); // Exponential backoff\n    }\n  }\n}",
+    "explain": "The exponential backoff formula (`backoff * 2^attempt`) is industry standard. It avoids thundering herd — if 10,000 clients all retry at exactly the same moment after a server error, they'd overwhelm the server again. Random jitter (adding `Math.random() * 1000`) is often added to spread retries further.",
+    "tip": "Service Workers can intercept network requests and implement caching strategies (Cache First, Network First, Stale-While-Revalidate) at the browser level, even for offline scenarios. PWA apps use this extensively."
+  },
+  {
+    "id": 132,
+    "company": "Deloitte",
+    "tech": [
+      "System Design",
+      "React"
+    ],
+    "diff": "Hard",
+    "q": "Design a real-time dashboard with live data updates — system design discussion.",
+    "a": "A real-time dashboard requires careful decisions at every layer: transport protocol, state management, caching, component optimization, and error resilience.<br><br><strong>1. Transport: WebSockets vs Polling vs SSE</strong><br>- <strong>WebSockets</strong>: Full-duplex, persistent connection. Best for truly real-time, bidirectional data (stock tickers, chat, live collaboration). Overhead: connection management, reconnection logic.<br>- <strong>Server-Sent Events (SSE)</strong>: Server pushes data unidirectionally. Simpler than WebSockets, automatic reconnection, works over HTTP. Best for dashboards and notifications.<br>- <strong>Polling</strong>: Client fetches on an interval. Simplest to implement. Wastes bandwidth if nothing changed. Use when real-time isn't truly required.<br><br><strong>2. State Management</strong>: TanStack Query for API tiles (auto-caching + refetch). Redux for dashboard layout/filter state. WebSocket messages update query cache directly via `queryClient.setQueryData()`.<br><br><strong>3. Component Optimization</strong>: Memoize every tile with `React.memo`. Virtualize long lists. Only subscribe components to the data slices they need.",
+    "code": "// Custom hook: useWebSocket with reconnection\nfunction useLiveDashboard() {\n  const queryClient = useQueryClient();\n  const wsRef = useRef(null);\n\n  useEffect(() =&gt; {\n    let reconnectTimer;\n    let reconnectAttempts = 0;\n\n    const connect = () =&gt; {\n      const ws = new WebSocket('wss://api.example.com/dashboard');\n      wsRef.current = ws;\n\n      ws.onmessage = (e) =&gt; {\n        const { type, payload } = JSON.parse(e.data);\n        // Push live data directly into TanStack Query's cache\n        queryClient.setQueryData(['metrics', type], payload);\n      };\n\n      ws.onerror = () =&gt; ws.close();\n\n      ws.onclose = () =&gt; {\n        // Exponential backoff reconnection\n        const delay = Math.min(1000 * 2 ** reconnectAttempts, 30_000);\n        reconnectAttempts++;\n        reconnectTimer = setTimeout(connect, delay);\n      };\n\n      ws.onopen = () =&gt; { reconnectAttempts = 0; };\n    };\n\n    connect();\n    return () =&gt; {\n      clearTimeout(reconnectTimer);\n      wsRef.current?.close();\n    };\n  }, [queryClient]);\n}\n\n// Dashboard tile: subscribes to only its metric slice\nconst MetricTile = React.memo(({ metricType }) =&gt; {\n  const data = useQueryData(['metrics', metricType]); // Reads from cache\n  return &lt;TileCard data={data} /&gt;;\n});",
+    "explain": "The architecture pattern here is key: WebSocket receives data → feeds into TanStack Query's cache → components reactively update via `useQuery`. This gives you real-time updates via WebSocket AND TanStack Query's staleTime/error handling for initial loads. The two systems complement each other.",
+    "tip": "For very high-frequency updates (10+ updates/second like trading platforms), throttle the React state updates — don't call `setState` 10 times per second. Batch WebSocket messages in a queue and flush them with `requestAnimationFrame` or a throttled interval."
+  },
+  {
+    "id": 133,
+    "company": "Deloitte",
+    "tech": [
+      "React",
+      "Rendering"
+    ],
+    "diff": "Hard",
+    "q": "CSR vs SSR vs SSG — client-side, server-side, and static rendering explained.",
+    "a": "<strong>CSR (Client-Side Rendering)</strong>: The server sends a bare HTML shell with a `<div id='root'>`. JavaScript downloads, runs, fetches data, and renders the UI entirely in the browser. Initial load is slow (blank screen until JS runs). Best for: dashboards, admin tools, apps behind login.<br><br><strong>SSR (Server-Side Rendering)</strong>: On each request, the server renders the full HTML page with data and sends it to the client. The browser displays content immediately (fast FCP). JavaScript then 'hydrates' — attaches event listeners to the server-rendered HTML. Best for: e-commerce product pages, news sites, any page needing fast load + SEO.<br><br><strong>SSG (Static Site Generation)</strong>: HTML is pre-generated at build time. No server compute per request — served from CDN. Fastest possible delivery. Best for: blogs, marketing pages, documentation. Cannot show personalized or real-time data without client-side hydration.",
+    "code": "// CSR (standard React SPA)\nReactDOM.createRoot(document.getElementById('root')).render(&lt;App /&gt;);\n// 1. Server sends: &lt;html&gt;&lt;div id='root'&gt;&lt;/div&gt;&lt;script src='app.js'&gt;&lt;/script&gt;&lt;/html&gt;\n// 2. Browser downloads app.js (slow!)\n// 3. React renders the full UI\n\n// SSR — Next.js getServerSideProps\n// Runs on the server for every request\nexport async function getServerSideProps({ params }) {\n  const product = await db.products.findById(params.id);\n  return { props: { product } }; // Passed as props to the component\n}\n// Component receives pre-fetched data — HTML is complete before JS loads\n\n// SSG — Next.js getStaticProps (build time)\nexport async function getStaticProps() {\n  const posts = await fetch('https://api.example.com/posts').then(r =&gt; r.json());\n  return {\n    props: { posts },\n    revalidate: 60, // ISR: Regenerate the page at most once every 60 seconds\n  };\n}\n// HTML generated at build time, served from CDN — blazing fast",
+    "explain": "Next.js elegantly supports all three in one framework. ISR (Incremental Static Regeneration) is a powerful hybrid — static pages that automatically regenerate in the background after a revalidation interval, giving you CDN speed for mostly-static content that can still go stale.",
+    "tip": "Choose based on data freshness needs: Real-time (WebSockets/SSR) → Frequently updated (SSR/ISR) → Rarely updated (SSG) → User-specific (CSR or SSR with auth). Most production apps use a hybrid strategy."
   }
 ];
